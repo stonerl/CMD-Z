@@ -36,8 +36,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let menu = NSMenu()
 
-        let toggleItem = NSMenuItem(title: "Disable", action: #selector(toggleRemapping), keyEquivalent: "")
+        let toggleItem = NSMenuItem(title: "Enabled", action: #selector(toggleRemapping), keyEquivalent: "")
         toggleItem.target = self
+        toggleItem.state = isRemappingEnabled ? .on : .off
         menu.addItem(toggleItem)
 
         let autostartItem = NSMenuItem(title: "Start at Login", action: #selector(toggleAutostart), keyEquivalent: "")
@@ -45,7 +46,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         autostartItem.state = isAutostartEnabled ? .on : .off
         menu.addItem(autostartItem)
 
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Quit CMD-Z", action: #selector(quitApp), keyEquivalent: ""))
         statusItem?.menu = menu
 
         // Start the key event tap (if used)
@@ -59,7 +60,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func toggleRemapping(_ sender: NSMenuItem) {
         isRemappingEnabled.toggle()
-        sender.title = isRemappingEnabled ? "Disable" : "Enable"
+        sender.state = isRemappingEnabled ? .on : .off
 
         if let button = statusItem?.button {
             button.title = isRemappingEnabled ? "Z↔Y" : "Z↔Y"
