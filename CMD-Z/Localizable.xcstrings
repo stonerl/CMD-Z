@@ -1,0 +1,72 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Enabled" : {
+      "comment" : "Menu item for enabling or disabling remapping",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktiviert"
+          }
+        }
+      }
+    },
+    "Error" : {
+      "comment" : "Alert title for errors",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fehler"
+          }
+        }
+      }
+    },
+    "Failed to update Start at Login setting: %@" : {
+      "comment" : "Error description for autostart update failure",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fehler beim Aktualisieren der Einstellung „Beim Anmelden starten“: %@"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "comment" : "Alert confirmation button",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "Quit CMD-Z" : {
+      "comment" : "Menu item for quitting the application",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„CMD-Z“ Beenden"
+          }
+        }
+      }
+    },
+    "Start at Login" : {
+      "comment" : "Menu item for toggling autostart",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Anmelden starten"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

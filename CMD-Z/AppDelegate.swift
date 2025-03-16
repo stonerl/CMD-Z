@@ -49,18 +49,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let menu = NSMenu()
 
-        let toggleItem = NSMenuItem(title: "Enabled", action: #selector(toggleRemapping), keyEquivalent: "")
+        let toggleItem = NSMenuItem(
+            title: NSLocalizedString("Enabled", comment: "Menu item for enabling or disabling remapping"),
+            action: #selector(toggleRemapping),
+            keyEquivalent: ""
+        )
         toggleItem.target = self
         toggleItem.state = isRemappingEnabled ? .on : .off
         menu.addItem(toggleItem)
 
-        let autostartItem = NSMenuItem(title: "Start at Login", action: #selector(toggleAutostart), keyEquivalent: "")
+        let autostartItem = NSMenuItem(
+            title: NSLocalizedString("Start at Login", comment: "Menu item for toggling autostart"),
+            action: #selector(toggleAutostart),
+            keyEquivalent: ""
+        )
         autostartItem.target = self
         autostartItem.state = isAutostartEnabled ? .on : .off
         menu.addItem(autostartItem)
         menu.addItem(NSMenuItem.separator())
 
-        menu.addItem(NSMenuItem(title: "Quit CMD-Z", action: #selector(quitApp), keyEquivalent: ""))
+        menu.addItem(
+            NSMenuItem(
+                title: NSLocalizedString("Quit CMD-Z", comment: "Menu item for quitting the application"),
+                action: #selector(quitApp),
+                keyEquivalent: ""
+            )
+        )
         statusItem?.menu = menu
 
         // Start the key event tap (if used)
@@ -99,10 +113,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             logger.error("Failed to update Start at Login setting: \(error.localizedDescription)")
 
             let alert = NSAlert()
-            alert.messageText = "Error"
-            alert.informativeText = "Failed to update Start at Login setting: \(error.localizedDescription)"
+            alert.messageText = NSLocalizedString("Error", comment: "Alert title for errors")
+            alert.informativeText = String(
+                format: NSLocalizedString(
+                    "Failed to update Start at Login setting: %@",
+                    comment: "Error description for autostart update failure"
+                ), error.localizedDescription
+            )
             alert.alertStyle = .warning
-            alert.addButton(withTitle: "OK")
+            alert.addButton(withTitle: NSLocalizedString("OK", comment: "Alert confirmation button"))
             alert.runModal()
         }
     }
