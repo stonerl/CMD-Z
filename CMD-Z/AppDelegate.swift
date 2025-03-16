@@ -11,6 +11,7 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var eventTap: CFMachPort?
+    var isRemappingEnabled = true // Track remapping state
 
     static var shared: AppDelegate?
 
@@ -29,11 +30,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem?.button?.title = "Z↔Y"
 
         let menu = NSMenu()
+        let toggleItem = NSMenuItem(title: "Disable Remapping", action: #selector(toggleRemapping), keyEquivalent: "")
+        toggleItem.target = self
+        menu.addItem(toggleItem)
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
         statusItem?.menu = menu
 
         // Start the key event tap (if used)
         startEventTap()
+    }
+
+    @objc func toggleRemapping(_ sender: NSMenuItem) {
+        isRemappingEnabled.toggle()
+        sender.title = isRemappingEnabled ? "Disable Remapping" : "Enable Remapping"
+
+        if let button = statusItem?.button {
+            button.title = isRemappingEnabled ? "Z↔Y" : "Z↔Y"
+            button.attributedTitle = NSAttributedString(
+                string: button.title,
+                attributes: [.foregroundColor: isRemappingEnabled ? NSColor.labelColor : NSColor.labelColor.withAlphaComponent(0.5)]
+            )
+        }
     }
 
     func startEventTap() {
@@ -67,6 +84,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
+        guard isRemappingEnabled else {
+            return Unmanaged.passUnretained(event)
+        }
+
         let flags = event.flags
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
 
