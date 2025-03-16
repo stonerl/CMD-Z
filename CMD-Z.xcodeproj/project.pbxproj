@@ -59,6 +59,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				E2E0CC092D877E7D00570CEF /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E2463AAB2D8768F00097FDF5 /* CMD-Z */,
@@ -94,6 +95,9 @@
 			);
 			mainGroup = E2463AA02D8768F00097FDF5;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E2E0CC072D877E6F00570CEF /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E2463AAA2D8768F00097FDF5 /* Products */;
 			projectDirPath = "";
@@ -123,6 +127,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E2E0CC092D877E7D00570CEF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = E2E0CC082D877E7D00570CEF /* SwiftLintBuildToolPlugin */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		E2463AB62D8768F00097FDF5 /* Debug */ = {
@@ -255,7 +266,7 @@
 				DEVELOPMENT_TEAM = 456BPWQ6U5;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -264,6 +275,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "de.fauler-apfel.CMD-Z";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -284,7 +296,7 @@
 				DEVELOPMENT_TEAM = 456BPWQ6U5;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -293,6 +305,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "de.fauler-apfel.CMD-Z";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -323,6 +336,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E2E0CC072D877E6F00570CEF /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.58.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E2E0CC082D877E7D00570CEF /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E0CC072D877E6F00570CEF /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E2463AA12D8768F00097FDF5 /* Project object */;
 }

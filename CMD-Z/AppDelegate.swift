@@ -20,7 +20,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     static var shared: AppDelegate?
 
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
+    func applicationDidFinishLaunching(_: Notification) {
         // Assign shared instance
         AppDelegate.shared = self
 
@@ -66,7 +66,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.title = isRemappingEnabled ? "Z↔Y" : "Z↔Y"
             button.attributedTitle = NSAttributedString(
                 string: button.title,
-                attributes: [.foregroundColor: isRemappingEnabled ? NSColor.labelColor : NSColor.labelColor.withAlphaComponent(0.5)]
+                attributes: [.foregroundColor: isRemappingEnabled ?
+                    NSColor.labelColor :
+                    NSColor.labelColor.withAlphaComponent(0.5)]
             )
         }
     }
@@ -109,7 +111,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             userInfo: nil
         )
 
-        guard let eventTap = eventTap else {
+        guard let eventTap else {
             print("Failed to create event tap")
             return
         }
@@ -123,7 +125,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         AppDelegate.shared?.handleCGEvent(type: type, event: event) ?? Unmanaged.passUnretained(event)
     }
 
-    func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
+    func handleCGEvent(type _: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         guard isRemappingEnabled else {
             return Unmanaged.passUnretained(event)
         }
@@ -143,7 +145,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func quitApp() {
-        if let eventTap = eventTap {
+        if let eventTap {
             CGEvent.tapEnable(tap: eventTap, enable: false)
             CFMachPortInvalidate(eventTap)
             self.eventTap = nil
@@ -151,7 +153,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApplication.shared.terminate(self)
     }
 
-    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-        return false
+    func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
+        false
     }
 }
