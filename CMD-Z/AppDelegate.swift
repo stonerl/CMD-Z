@@ -6,7 +6,10 @@
 //
 
 import Cocoa
+import OSLog
 import ServiceManagement
+
+private let logger = Logger(subsystem: "de.fauler-apfel.CMD-Z", category: "AppDelegate")
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -87,13 +90,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         do {
             if enable {
                 try appService.register()
-                print("Start at Login enabled")
+                logger.info("Start at Login enabled")
             } else {
                 try appService.unregister()
-                print("Start at Login disabled")
+                logger.info("Start at Login disabled")
             }
         } catch {
-            print("Failed to update Start at Login setting: \(error)")
+            logger.error("Failed to update Start at Login setting: \(error.localizedDescription)")
 
             let alert = NSAlert()
             alert.messageText = "Error"
@@ -106,7 +109,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func startEventTap() {
         guard eventTap == nil else {
-            print("Event tap is already running.")
+            logger.info("Event tap is already running.")
             return
         }
 
@@ -121,7 +124,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         guard let eventTap else {
-            print("Failed to create event tap")
+            logger.error("Failed to create event tap")
             return
         }
 
