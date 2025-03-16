@@ -18,6 +18,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         set { UserDefaults.standard.setValue(newValue, forKey: "isAutostartEnabled") }
     }
 
+    private func updateStatusItemAppearance() {
+        guard let button = statusItem?.button else { return }
+        button.title = "Z↔Y"
+        button.attributedTitle = NSAttributedString(
+            string: button.title,
+            attributes: [
+                .foregroundColor: isRemappingEnabled
+                    ? NSColor.labelColor
+                    : NSColor.labelColor.withAlphaComponent(0.5)
+            ]
+        )
+    }
+
     static var shared: AppDelegate?
 
     func applicationDidFinishLaunching(_: Notification) {
@@ -26,9 +39,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Prevent the app from appearing in the Dock or having a visible main window
         NSApp.setActivationPolicy(.accessory)
-
-        // Manually activate the app to prevent immediate termination
-        NSApp.activate(ignoringOtherApps: true)
 
         // Create a menu bar item
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -62,16 +72,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func toggleRemapping(_ sender: NSMenuItem) {
         isRemappingEnabled.toggle()
         sender.state = isRemappingEnabled ? .on : .off
-
-        if let button = statusItem?.button {
-            button.title = isRemappingEnabled ? "Z↔Y" : "Z↔Y"
-            button.attributedTitle = NSAttributedString(
-                string: button.title,
-                attributes: [.foregroundColor: isRemappingEnabled ?
-                    NSColor.labelColor :
-                    NSColor.labelColor.withAlphaComponent(0.5)]
-            )
-        }
+        updateStatusItemAppearance()
     }
 
     @objc func toggleAutostart(_ sender: NSMenuItem) {
@@ -93,6 +94,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         } catch {
             print("Failed to update Start at Login setting: \(error)")
+
+            let alert = NSAlert()
+            alert.messageText = "Error"
+            alert.informativeText = "Failed to update Start at Login setting: \(error.localizedDescription)"
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "OK")
+            alert.runModal()
         }
     }
 
@@ -123,7 +131,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     static let eventTapCallback: CGEventTapCallBack = { _, type, event, _ in
-        AppDelegate.shared?.handleCGEvent(type: type, event: event) ?? Unmanaged.passUnretained(event)
+        if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+            if let eventTap = AppDelegate.shared?.eventTap {
+                CGEvent.tapEnable(tap: eventTap, enable: true)
+            }
+            return Unmanaged.passUnretained(event)
+        }
+        return AppDelegate.shared?.handleCGEvent(type: type, event: event) ?? Unmanaged.passUnretained(event)
     }
 
     func handleCGEvent(type _: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
