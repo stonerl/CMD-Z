@@ -12,7 +12,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var eventTap: CFMachPort?
 
-    static var shared: AppDelegate? // Remove weak
+    static var shared: AppDelegate?
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Assign shared instance
@@ -37,6 +37,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func startEventTap() {
+        guard eventTap == nil else {
+            print("Event tap is already running.")
+            return
+        }
+
         let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
         eventTap = CGEvent.tapCreate(
             tap: .cghidEventTap,
@@ -57,17 +62,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         CGEvent.tapEnable(tap: eventTap, enable: true)
     }
 
-    // Static function that does not capture self
     static let eventTapCallback: CGEventTapCallBack = { _, type, event, _ in
-        return AppDelegate.shared?.handleCGEvent(type: type, event: event)
+        AppDelegate.shared?.handleCGEvent(type: type, event: event) ?? Unmanaged.passUnretained(event)
     }
 
-    // Function to process key events
     func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         let flags = event.flags
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
 
-        if flags.contains(.maskCommand) { // If Command (⌘) is pressed
+        if flags.contains(.maskCommand) {
             if keyCode == 6 { // 'Z' key
                 event.setIntegerValueField(.keyboardEventKeycode, value: 16) // Change to 'Y'
             } else if keyCode == 16 { // 'Y' key
@@ -81,6 +84,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func quitApp() {
         if let eventTap = eventTap {
             CGEvent.tapEnable(tap: eventTap, enable: false)
+            CFMachPortInvalidate(eventTap)
+            self.eventTap = nil
         }
         NSApplication.shared.terminate(self)
     }
