@@ -30,10 +30,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem?.button?.title = "Z↔Y"
 
         let menu = NSMenu()
-        let toggleItem = NSMenuItem(title: "Disable Remapping", action: #selector(toggleRemapping), keyEquivalent: "")
+        let toggleItem = NSMenuItem(title: "Disable", action: #selector(toggleRemapping), keyEquivalent: "")
         toggleItem.target = self
         menu.addItem(toggleItem)
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: ""))
         statusItem?.menu = menu
 
         // Start the key event tap (if used)
@@ -42,7 +42,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func toggleRemapping(_ sender: NSMenuItem) {
         isRemappingEnabled.toggle()
-        sender.title = isRemappingEnabled ? "Disable Remapping" : "Enable Remapping"
+        sender.title = isRemappingEnabled ? "Disable" : "Enable"
 
         if let button = statusItem?.button {
             button.title = isRemappingEnabled ? "Z↔Y" : "Z↔Y"
