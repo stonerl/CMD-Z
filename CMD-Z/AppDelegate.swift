@@ -6,12 +6,17 @@
 //
 
 import Cocoa
+import ServiceManagement
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var eventTap: CFMachPort?
     var isRemappingEnabled = true // Track remapping state
+    var isAutostartEnabled: Bool {
+        get { UserDefaults.standard.bool(forKey: "isAutostartEnabled") }
+        set { UserDefaults.standard.setValue(newValue, forKey: "isAutostartEnabled") }
+    }
 
     static var shared: AppDelegate?
 
@@ -30,14 +35,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem?.button?.title = "Z↔Y"
 
         let menu = NSMenu()
+
         let toggleItem = NSMenuItem(title: "Disable", action: #selector(toggleRemapping), keyEquivalent: "")
         toggleItem.target = self
         menu.addItem(toggleItem)
+
+        let autostartItem = NSMenuItem(title: "Start at Login", action: #selector(toggleAutostart), keyEquivalent: "")
+        autostartItem.target = self
+        autostartItem.state = isAutostartEnabled ? .on : .off
+        menu.addItem(autostartItem)
+
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: ""))
         statusItem?.menu = menu
 
         // Start the key event tap (if used)
         startEventTap()
+
+        // Ensure autostart is enabled if previously set
+        if isAutostartEnabled {
+            enableAutostart(true)
+        }
     }
 
     @objc func toggleRemapping(_ sender: NSMenuItem) {
@@ -50,6 +67,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 string: button.title,
                 attributes: [.foregroundColor: isRemappingEnabled ? NSColor.labelColor : NSColor.labelColor.withAlphaComponent(0.5)]
             )
+        }
+    }
+
+    @objc func toggleAutostart(_ sender: NSMenuItem) {
+        isAutostartEnabled.toggle()
+        sender.state = isAutostartEnabled ? .on : .off
+        enableAutostart(isAutostartEnabled)
+    }
+
+    func enableAutostart(_ enable: Bool) {
+        let appService = SMAppService.mainApp
+
+        do {
+            if enable {
+                try appService.register()
+                print("Start at Login enabled")
+            } else {
+                try appService.unregister()
+                print("Start at Login disabled")
+            }
+        } catch {
+            print("Failed to update Start at Login setting: \(error)")
         }
     }
 
