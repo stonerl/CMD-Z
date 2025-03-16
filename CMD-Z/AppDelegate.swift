@@ -45,6 +45,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         autostartItem.target = self
         autostartItem.state = isAutostartEnabled ? .on : .off
         menu.addItem(autostartItem)
+        menu.addItem(NSMenuItem.separator())
 
         menu.addItem(NSMenuItem(title: "Quit CMD-Z", action: #selector(quitApp), keyEquivalent: ""))
         statusItem?.menu = menu
