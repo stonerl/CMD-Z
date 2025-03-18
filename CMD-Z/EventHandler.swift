@@ -59,6 +59,14 @@ class EventHandler {
     }
 
     func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
-        KeyboardHandler.handleCGEvent(type: type, event: event)
+        let flags = event.flags
+        let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
+
+        // Only process if Command key is active and Y or Z
+        guard flags.contains(.maskCommand), keyCode == 6 || keyCode == 16 else {
+            return Unmanaged.passUnretained(event)
+        }
+
+        return KeyboardHandler.handleCGEvent(type: type, event: event)
     }
 }

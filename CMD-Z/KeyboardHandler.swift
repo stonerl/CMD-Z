@@ -90,7 +90,7 @@ class KeyboardHandler {
         // For allowed keyboard layouts, perform full remapping.
         if flags.contains(.maskCommand) {
             // Special case: For Office apps, if Command+Shift+Y is pressed, remove Shift.
-            if keyCode == 16 && flags.contains(.maskShift) && officeApp {
+            if officeApp, flags.contains(.maskShift), keyCode == 16 {
                 var newFlags = flags
                 newFlags.remove(.maskShift)
                 event.flags = newFlags

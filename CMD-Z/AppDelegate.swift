@@ -64,10 +64,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         AutostartManager.shared.enableAutostart(isAutostartEnabled)
     }
 
-    func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
-        KeyboardHandler.handleCGEvent(type: type, event: event)
-    }
-
     @objc func quitApp() {
         EventHandler.shared.stopEventTap()
         NSApplication.shared.terminate(self)
