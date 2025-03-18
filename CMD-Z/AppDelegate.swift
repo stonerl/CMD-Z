@@ -173,13 +173,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Check if the frontmost active app is one of the Office programs
         let isOfficeApp: Bool = {
             if let bundleId = NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
-                return
-                    bundleId == "com.microsoft.Word" ||
-                    bundleId == "com.microsoft.Excel" ||
-                    bundleId == "com.microsoft.PowerPoint" ||
-                    bundleId == "com.microsoft.Outlook" ||
-                    bundleId == "com.microsoft.onenote.mac" ||
-                    bundleId == "org.libreoffice.script"
+                if bundleId.hasPrefix("com.microsoft.") {
+                    return bundleId == "com.microsoft.Word" ||
+                        bundleId == "com.microsoft.Excel" ||
+                        bundleId == "com.microsoft.PowerPoint" ||
+                        bundleId == "com.microsoft.Outlook" ||
+                        bundleId == "com.microsoft.onenote.mac"
+                } else {
+                    return bundleId == "org.libreoffice.script" ||
+                        bundleId.hasPrefix("org.gimp.gimp")
+                }
             }
             return false
         }()
