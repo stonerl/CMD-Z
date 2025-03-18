@@ -23,15 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func updateStatusItemAppearance() {
         guard let button = statusItem?.button else { return }
-        button.title = "Z↔Y"
-        button.attributedTitle = NSAttributedString(
-            string: button.title,
-            attributes: [
-                .foregroundColor: isRemappingEnabled
-                    ? NSColor.labelColor
-                    : NSColor.labelColor.withAlphaComponent(0.5)
-            ]
-        )
+        button.alphaValue = isRemappingEnabled ? 1.0 : 0.5
     }
 
     static var shared: AppDelegate?
@@ -43,9 +35,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Prevent the app from appearing in the Dock or having a visible main window
         NSApp.setActivationPolicy(.accessory)
 
-        // Create a menu bar item
+        // Create a menu bar item using the asset from the asset catalog
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem?.button?.title = "Z↔Y"
+        if let button = statusItem?.button {
+            if let image = NSImage(named: "MenuBar") {
+                // Set the image size to fit the menubar; adjust dimensions as needed
+                image.size = NSSize(width: 21, height: 21)
+                button.image = image
+            }
+        }
 
         let menu = NSMenu()
 
