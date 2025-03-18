@@ -126,6 +126,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return allowedLayouts.contains(layoutID)
     }
 
+    func isOfficeApp() -> Bool {
+        if let bundleId = NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
+            if bundleId.hasPrefix("com.microsoft.") {
+                return bundleId == "com.microsoft.Word" ||
+                    bundleId == "com.microsoft.Excel" ||
+                    bundleId == "com.microsoft.PowerPoint" ||
+                    bundleId == "com.microsoft.Outlook" ||
+                    bundleId == "com.microsoft.onenote.mac"
+            } else {
+                return bundleId == "org.libreoffice.script" ||
+                    bundleId.hasPrefix("org.gimp.gimp")
+            }
+        }
+        return false
+    }
+
     func enableAutostart(_ enable: Bool) {
         let appService = SMAppService.mainApp
 
@@ -203,26 +219,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let flags = event.flags
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
 
-        // Check if the frontmost active app is one of the Office programs
-        let isOfficeApp: Bool = {
-            if let bundleId = NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
-                if bundleId.hasPrefix("com.microsoft.") {
-                    return bundleId == "com.microsoft.Word" ||
-                        bundleId == "com.microsoft.Excel" ||
-                        bundleId == "com.microsoft.PowerPoint" ||
-                        bundleId == "com.microsoft.Outlook" ||
-                        bundleId == "com.microsoft.onenote.mac"
-                } else {
-                    return bundleId == "org.libreoffice.script" ||
-                        bundleId.hasPrefix("org.gimp.gimp")
-                }
-            }
-            return false
-        }()
+        let officeApp = isOfficeApp()
 
         if flags.contains(.maskCommand) {
             // Special case: For Office apps, if Command+Shift+Y is pressed, remove Shift and return
-            if keyCode == 16 && flags.contains(.maskShift) && isOfficeApp {
+            if keyCode == 16 && flags.contains(.maskShift) && officeApp {
                 var newFlags = flags
                 newFlags.remove(.maskShift)
                 event.flags = newFlags
