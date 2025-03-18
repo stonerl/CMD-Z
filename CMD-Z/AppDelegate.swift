@@ -170,11 +170,41 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let flags = event.flags
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
 
+        // Check if the frontmost active app is one of the Office programs
+        let isOfficeApp: Bool = {
+            if let bundleId = NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
+                return
+                    bundleId == "com.microsoft.Word" ||
+                    bundleId == "com.microsoft.Excel" ||
+                    bundleId == "com.microsoft.PowerPoint" ||
+                    bundleId == "com.microsoft.Outlook" ||
+                    bundleId == "com.microsoft.onenote.mac"
+            }
+            return false
+        }()
+
         if flags.contains(.maskCommand) {
-            if keyCode == 6 { // 'Z' key
-                event.setIntegerValueField(.keyboardEventKeycode, value: 16) // Change to 'Y'
-            } else if keyCode == 16 { // 'Y' key
-                event.setIntegerValueField(.keyboardEventKeycode, value: 6) // Change to 'Z'
+            if isOfficeApp {
+                // For Office apps:
+                // If Command+Shift+Y is pressed, remove the Shift modifier and bypass further swapping
+                if keyCode == 16 && flags.contains(.maskShift) {
+                    var newFlags = flags
+                    newFlags.remove(.maskShift)
+                    event.flags = newFlags
+                    return Unmanaged.passUnretained(event)
+                } else if keyCode == 6 {
+                    // Swap Command+Z to Command+Y
+                    event.setIntegerValueField(.keyboardEventKeycode, value: 16)
+                } else if keyCode == 16 {
+                    event.setIntegerValueField(.keyboardEventKeycode, value: 6)
+                }
+            } else {
+                // For non-Office apps, perform full swap between 'Z' and 'Y'
+                if keyCode == 6 { // 'Z' key
+                    event.setIntegerValueField(.keyboardEventKeycode, value: 16) // Change to 'Y'
+                } else if keyCode == 16 { // 'Y' key
+                    event.setIntegerValueField(.keyboardEventKeycode, value: 6) // Change to 'Z'
+                }
             }
         }
 
