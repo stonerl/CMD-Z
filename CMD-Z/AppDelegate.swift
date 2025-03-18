@@ -5,6 +5,7 @@
 //  Created by Toni Förster on 16.03.25.
 //
 
+import Carbon
 import Cocoa
 import OSLog
 import ServiceManagement
@@ -82,6 +83,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if isAutostartEnabled {
             enableAutostart(true)
         }
+
+        if let layoutID = currentKeyboardLayoutID() {
+            print("Current keyboard layout ID: \(layoutID)")
+            // For example, for a QWERTZ layout on macOS, you might expect something like "com.apple.keylayout.German"
+            if layoutID.contains("German") || layoutID.lowercased().contains("qwertz") {
+                print("Detected QWERTZ-like keyboard layout")
+            }
+        }
+    }
+
+    func currentKeyboardLayoutID() -> String? {
+        guard let inputSource = TISCopyCurrentKeyboardLayoutInputSource()?.takeRetainedValue() else {
+            return nil
+        }
+        if let sourceID = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID) {
+            return unsafeBitCast(sourceID, to: CFString.self) as String
+        }
+        return nil
     }
 
     @objc func toggleRemapping(_ sender: NSMenuItem) {
@@ -165,6 +184,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return Unmanaged.passUnretained(event)
         }
 
+        // Only remap if the current keyboard layout is QWERTZ-like.
+        guard let layoutID = currentKeyboardLayoutID(),
+              layoutID.contains("German") || layoutID.lowercased().contains("qwertz")
+        else {
+            return Unmanaged.passUnretained(event)
+        }
+
         let flags = event.flags
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
 
@@ -186,27 +212,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }()
 
         if flags.contains(.maskCommand) {
-            if isOfficeApp {
-                // For Office apps:
-                // If Command+Shift+Y is pressed, remove the Shift modifier and bypass further swapping
-                if keyCode == 16 && flags.contains(.maskShift) {
-                    var newFlags = flags
-                    newFlags.remove(.maskShift)
-                    event.flags = newFlags
-                    return Unmanaged.passUnretained(event)
-                } else if keyCode == 6 {
-                    // Swap Command+Z to Command+Y
-                    event.setIntegerValueField(.keyboardEventKeycode, value: 16)
-                } else if keyCode == 16 {
-                    event.setIntegerValueField(.keyboardEventKeycode, value: 6)
-                }
-            } else {
-                // For non-Office apps, perform full swap between 'Z' and 'Y'
-                if keyCode == 6 { // 'Z' key
-                    event.setIntegerValueField(.keyboardEventKeycode, value: 16) // Change to 'Y'
-                } else if keyCode == 16 { // 'Y' key
-                    event.setIntegerValueField(.keyboardEventKeycode, value: 6) // Change to 'Z'
-                }
+            // Special case: For Office apps, if Command+Shift+Y is pressed, remove Shift and return
+            if keyCode == 16 && flags.contains(.maskShift) && isOfficeApp {
+                var newFlags = flags
+                newFlags.remove(.maskShift)
+                event.flags = newFlags
+                return Unmanaged.passUnretained(event)
+            }
+
+            // For both Office and non-Office apps, swap 'Z' and 'Y' keys
+            if keyCode == 6 || keyCode == 16 {
+                event.setIntegerValueField(.keyboardEventKeycode, value: keyCode == 6 ? 16 : 6)
             }
         }
 
