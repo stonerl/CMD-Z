@@ -7,6 +7,9 @@
 
 import Carbon
 import Cocoa
+import OSLog
+
+private let logger = Logger(subsystem: "de.fauler-apfel.CMD-Z", category: "KeyboardHandler")
 
 class KeyboardHandler {
     /// Returns the current keyboard layout ID using the Carbon TIS API.
@@ -42,6 +45,7 @@ class KeyboardHandler {
     /// Checks if the frontmost app is an Office (or related) app.
     static func isOfficeApp() -> Bool {
         if let bundleId = NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
+            logger.debug("Frontmost application: \(bundleId)")
             if bundleId.hasPrefix("com.microsoft.") {
                 return bundleId == "com.microsoft.Word" ||
                     bundleId == "com.microsoft.Excel" ||
@@ -50,6 +54,8 @@ class KeyboardHandler {
                     bundleId == "com.microsoft.onenote.mac"
             } else {
                 return bundleId == "org.libreoffice.script" ||
+                    bundleId == "de.akademische.sse30" ||
+                    bundleId == "de.akademische.steuertippscenter30" ||
                     bundleId.hasPrefix("org.gimp.gimp")
             }
         }
