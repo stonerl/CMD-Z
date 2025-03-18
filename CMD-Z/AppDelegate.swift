@@ -34,45 +34,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Prevent the app from appearing in the Dock or having a visible main window
         NSApp.setActivationPolicy(.accessory)
 
-        // Create a menu bar item using the asset from the asset catalog
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        if let button = statusItem?.button {
-            if let image = NSImage(named: "MenuBar") {
-                // Set the image size to fit the menubar; adjust dimensions as needed
-                image.size = NSSize(width: 21, height: 21)
-                button.image = image
-            }
-        }
-
-        let menu = NSMenu()
-
-        let toggleItem = NSMenuItem(
-            title: NSLocalizedString("Enabled", comment: "Menu item for enabling or disabling remapping"),
-            action: #selector(toggleRemapping),
-            keyEquivalent: ""
+        // Create and configure the menu bar item using MenuBarManager
+        MenuBarManager.shared.createMenuBarItem()
+        MenuBarManager.shared.setupMenu(
+            toggleRemappingAction: #selector(toggleRemapping),
+            toggleAutostartAction: #selector(toggleAutostart),
+            quitAction: #selector(quitApp),
+            target: self,
+            isRemappingEnabled: isRemappingEnabled,
+            isAutostartEnabled: isAutostartEnabled
         )
-        toggleItem.target = self
-        toggleItem.state = isRemappingEnabled ? .on : .off
-        menu.addItem(toggleItem)
-
-        let autostartItem = NSMenuItem(
-            title: NSLocalizedString("Start at Login", comment: "Menu item for toggling autostart"),
-            action: #selector(toggleAutostart),
-            keyEquivalent: ""
-        )
-        autostartItem.target = self
-        autostartItem.state = isAutostartEnabled ? .on : .off
-        menu.addItem(autostartItem)
-        menu.addItem(NSMenuItem.separator())
-
-        menu.addItem(
-            NSMenuItem(
-                title: NSLocalizedString("Quit CMD-Z", comment: "Menu item for quitting the application"),
-                action: #selector(quitApp),
-                keyEquivalent: ""
-            )
-        )
-        statusItem?.menu = menu
 
         // Start the key event tap using EventHandler
         EventHandler.shared.startEventTap()
