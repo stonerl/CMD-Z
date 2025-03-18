@@ -79,7 +79,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Ensure autostart is enabled if previously set
         if isAutostartEnabled {
-            enableAutostart(true)
+            AutostartManager.shared.enableAutostart(true)
         }
     }
 
@@ -92,35 +92,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func toggleAutostart(_ sender: NSMenuItem) {
         isAutostartEnabled.toggle()
         sender.state = isAutostartEnabled ? .on : .off
-        enableAutostart(isAutostartEnabled)
-    }
-
-    func enableAutostart(_ enable: Bool) {
-        let appService = SMAppService.mainApp
-
-        do {
-            if enable {
-                try appService.register()
-                logger.info("Start at Login enabled")
-            } else {
-                try appService.unregister()
-                logger.info("Start at Login disabled")
-            }
-        } catch {
-            logger.error("Failed to update Start at Login setting: \(error.localizedDescription)")
-
-            let alert = NSAlert()
-            alert.messageText = NSLocalizedString("Error", comment: "Alert title for errors")
-            alert.informativeText = String(
-                format: NSLocalizedString(
-                    "Failed to update Start at Login setting: %@",
-                    comment: "Error description for autostart update failure"
-                ), error.localizedDescription
-            )
-            alert.alertStyle = .warning
-            alert.addButton(withTitle: NSLocalizedString("OK", comment: "Alert confirmation button"))
-            alert.runModal()
-        }
+        AutostartManager.shared.enableAutostart(isAutostartEnabled)
     }
 
     func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
