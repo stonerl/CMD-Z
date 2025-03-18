@@ -53,8 +53,7 @@ class KeyboardHandler {
                     bundleId == "com.microsoft.Outlook" ||
                     bundleId == "com.microsoft.onenote.mac"
             } else {
-                return bundleId.hasPrefix("org.libreoffice.") ||
-                    bundleId.hasPrefix("org.gimp.")
+                return bundleId == "org.libreoffice.script"
             }
         }
         return false
@@ -77,9 +76,7 @@ class KeyboardHandler {
             // ...and we're in an app with Windows style shortcuts, then if Command+Shift+Z is pressed,
             // remove the Shift modifier and remap to Command+Y.
             if windowsShortcut, flags.contains(.maskCommand), flags.contains(.maskShift), keyCode == 6 {
-                var newFlags = flags
-                newFlags.remove(.maskShift)
-                event.flags = newFlags
+                event.flags.remove(.maskShift)
                 event.setIntegerValueField(.keyboardEventKeycode, value: 16)
             }
             return Unmanaged.passUnretained(event)
@@ -89,9 +86,7 @@ class KeyboardHandler {
         if flags.contains(.maskCommand) {
             // Special case: For apps with Windows style shortcuts, if Command+Shift+Y is pressed, remove Shift.
             if windowsShortcut, flags.contains(.maskShift), keyCode == 16 {
-                var newFlags = flags
-                newFlags.remove(.maskShift)
-                event.flags = newFlags
+                event.flags.remove(.maskShift)
                 return Unmanaged.passUnretained(event)
             }
 
