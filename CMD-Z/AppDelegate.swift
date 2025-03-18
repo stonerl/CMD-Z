@@ -36,13 +36,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Create and configure the menu bar item using MenuBarManager
         MenuBarManager.shared.createMenuBarItem()
+        let menuConfig = MenuConfiguration(
+            isRemappingEnabled: isRemappingEnabled,
+            isAutostartEnabled: isAutostartEnabled
+        )
         MenuBarManager.shared.setupMenu(
             toggleRemappingAction: #selector(toggleRemapping),
             toggleAutostartAction: #selector(toggleAutostart),
             quitAction: #selector(quitApp),
             target: self,
-            isRemappingEnabled: isRemappingEnabled,
-            isAutostartEnabled: isAutostartEnabled
+            configuration: menuConfig
         )
 
         // Start the key event tap using EventHandler

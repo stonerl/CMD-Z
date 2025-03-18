@@ -7,6 +7,11 @@
 
 import Cocoa
 
+struct MenuConfiguration {
+    let isRemappingEnabled: Bool
+    let isAutostartEnabled: Bool
+}
+
 class MenuBarManager {
     static let shared = MenuBarManager()
     var statusItem: NSStatusItem?
@@ -35,14 +40,12 @@ class MenuBarManager {
     ///   - toggleAutostartAction: The selector for toggling autostart.
     ///   - quitAction: The selector for quitting the app.
     ///   - target: The target object (e.g. AppDelegate) for the menu actions.
-    ///   - isRemappingEnabled: The current remapping state.
-    ///   - isAutostartEnabled: The current autostart state.
+    ///   - configuration: A MenuConfiguration object containing the current remapping and autostart states.
     func setupMenu(toggleRemappingAction: Selector,
                    toggleAutostartAction: Selector,
                    quitAction: Selector,
                    target: AnyObject,
-                   isRemappingEnabled: Bool,
-                   isAutostartEnabled: Bool)
+                   configuration: MenuConfiguration)
     {
         let menu = NSMenu()
 
@@ -52,7 +55,7 @@ class MenuBarManager {
             keyEquivalent: ""
         )
         toggleItem.target = target
-        toggleItem.state = isRemappingEnabled ? .on : .off
+        toggleItem.state = configuration.isRemappingEnabled ? .on : .off
         menu.addItem(toggleItem)
 
         let autostartItem = NSMenuItem(
@@ -61,7 +64,7 @@ class MenuBarManager {
             keyEquivalent: ""
         )
         autostartItem.target = target
-        autostartItem.state = isAutostartEnabled ? .on : .off
+        autostartItem.state = configuration.isAutostartEnabled ? .on : .off
         menu.addItem(autostartItem)
 
         menu.addItem(NSMenuItem.separator())
