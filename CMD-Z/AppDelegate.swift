@@ -20,11 +20,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         set { UserDefaults.standard.setValue(newValue, forKey: "isAutostartEnabled") }
     }
 
-    private func updateStatusItemAppearance() {
-        guard let button = statusItem?.button else { return }
-        button.alphaValue = isRemappingEnabled ? 1.0 : 0.5
-    }
-
     static var shared: AppDelegate?
 
     func applicationDidFinishLaunching(_: Notification) {
@@ -60,7 +55,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func toggleRemapping(_ sender: NSMenuItem) {
         isRemappingEnabled.toggle()
         sender.state = isRemappingEnabled ? .on : .off
-        updateStatusItemAppearance()
+        MenuBarManager.shared.updateAppearance(isEnabled: isRemappingEnabled)
     }
 
     @objc func toggleAutostart(_ sender: NSMenuItem) {

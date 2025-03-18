@@ -22,7 +22,7 @@ class MenuBarManager {
         guard let button = statusItem?.button else { return }
         if let image = NSImage(named: "MenuBar") {
             // Adjust the image size to fit the menu bar
-            image.size = NSSize(width: 21, height: 21)
+            image.size = NSSize(width: 24, height: 24)
             button.image = image
         }
         updateAppearance(isEnabled: true)
