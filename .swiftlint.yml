@@ -1,4 +1,5 @@
 disabled_rules:
+  - opening_brace
 
 custom_rules:
   workaround:
