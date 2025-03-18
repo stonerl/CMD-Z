@@ -83,24 +83,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if isAutostartEnabled {
             enableAutostart(true)
         }
-
-        if let layoutID = currentKeyboardLayoutID() {
-            print("Current keyboard layout ID: \(layoutID)")
-            // For example, for a QWERTZ layout on macOS, you might expect something like "com.apple.keylayout.German"
-            if layoutID.contains("German") || layoutID.lowercased().contains("qwertz") {
-                print("Detected QWERTZ-like keyboard layout")
-            }
-        }
-    }
-
-    func currentKeyboardLayoutID() -> String? {
-        guard let inputSource = TISCopyCurrentKeyboardLayoutInputSource()?.takeRetainedValue() else {
-            return nil
-        }
-        if let sourceID = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID) {
-            return unsafeBitCast(sourceID, to: CFString.self) as String
-        }
-        return nil
     }
 
     @objc func toggleRemapping(_ sender: NSMenuItem) {
@@ -113,6 +95,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         isAutostartEnabled.toggle()
         sender.state = isAutostartEnabled ? .on : .off
         enableAutostart(isAutostartEnabled)
+    }
+
+    func currentKeyboardLayoutID() -> String? {
+        guard let inputSource = TISCopyCurrentKeyboardLayoutInputSource()?.takeRetainedValue() else {
+            return nil
+        }
+        if let sourceID = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID) {
+            return unsafeBitCast(sourceID, to: CFString.self) as String
+        }
+        return nil
+    }
+
+    // Add this new function in your AppDelegate, for example, after currentKeyboardLayoutID()
+    func isAllowedKeyboardLayout() -> Bool {
+        let allowedLayouts: Set<String> = [
+            "com.apple.keylayout.ABC-QWERTZ",
+            "com.apple.keylayout.Albanian",
+            "com.apple.keylayout.Austrian",
+            "com.apple.keylayout.Croatian-PC",
+            "com.apple.keylayout.Czech",
+            "com.apple.keylayout.German",
+            "com.apple.keylayout.German-DIN-2137",
+            "com.apple.keylayout.Hungarian",
+            "com.apple.keylayout.Slovak",
+            "com.apple.keylayout.SwissFrench",
+            "com.apple.keylayout.SwissGerman"
+        ]
+        guard let layoutID = currentKeyboardLayoutID() else { return false }
+        return allowedLayouts.contains(layoutID)
     }
 
     func enableAutostart(_ enable: Bool) {
@@ -184,10 +195,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return Unmanaged.passUnretained(event)
         }
 
-        // Only remap if the current keyboard layout is QWERTZ-like.
-        guard let layoutID = currentKeyboardLayoutID(),
-              layoutID.contains("German") || layoutID.lowercased().contains("qwertz")
-        else {
+        // Only remap if the current keyboard layout is one of the specified layouts.
+        guard isAllowedKeyboardLayout() else {
             return Unmanaged.passUnretained(event)
         }
 
