@@ -33,7 +33,7 @@ class KeyboardHandler {
             "com.apple.keylayout.Hungarian",
             "com.apple.keylayout.Slovak",
             "com.apple.keylayout.SwissFrench",
-            "com.apple.keylayout.SwissGerman"
+            "com.apple.keylayout.SwissGerman",
         ]
         guard let layoutID = currentKeyboardLayoutID() else { return false }
         return allowedLayouts.contains(layoutID)
@@ -57,7 +57,7 @@ class KeyboardHandler {
     }
 
     /// Handles a key event by performing remapping based on the current layout and target application.
-    static func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
+    static func handleCGEvent(type _: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         // Access isRemappingEnabled from AppDelegate (assumes AppDelegate.shared is available)
         guard let isRemappingEnabled = AppDelegate.shared?.isRemappingEnabled, isRemappingEnabled else {
             return Unmanaged.passUnretained(event)

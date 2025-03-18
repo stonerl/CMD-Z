@@ -67,7 +67,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
-        return KeyboardHandler.handleCGEvent(type: type, event: event)
+        KeyboardHandler.handleCGEvent(type: type, event: event)
     }
 
     @objc func quitApp() {

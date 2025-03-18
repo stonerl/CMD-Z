@@ -11,15 +11,15 @@ import OSLog
 class EventHandler {
     static let shared = EventHandler()
     var eventTap: CFMachPort?
-    
+
     private let logger = Logger(subsystem: "de.fauler-apfel.CMD-Z", category: "EventHandler")
-    
+
     func startEventTap() {
         guard eventTap == nil else {
             logger.info("Event tap is already running.")
             return
         }
-        
+
         let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
         eventTap = CGEvent.tapCreate(
             tap: .cghidEventTap,
@@ -29,25 +29,25 @@ class EventHandler {
             callback: EventHandler.eventTapCallback,
             userInfo: nil
         )
-        
-        guard let eventTap = eventTap else {
+
+        guard let eventTap else {
             logger.error("Failed to create event tap")
             return
         }
-        
+
         let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
         CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
         CGEvent.tapEnable(tap: eventTap, enable: true)
     }
-    
+
     func stopEventTap() {
-        if let eventTap = eventTap {
+        if let eventTap {
             CGEvent.tapEnable(tap: eventTap, enable: false)
             CFMachPortInvalidate(eventTap)
             self.eventTap = nil
         }
     }
-    
+
     static let eventTapCallback: CGEventTapCallBack = { _, type, event, _ in
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
             if let eventTap = EventHandler.shared.eventTap {
@@ -57,8 +57,8 @@ class EventHandler {
         }
         return EventHandler.shared.handleCGEvent(type: type, event: event)
     }
-    
+
     func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
-        return KeyboardHandler.handleCGEvent(type: type, event: event)
+        KeyboardHandler.handleCGEvent(type: type, event: event)
     }
 }
