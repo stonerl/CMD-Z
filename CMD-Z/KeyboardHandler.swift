@@ -33,7 +33,7 @@ class KeyboardHandler {
             "com.apple.keylayout.Hungarian",
             "com.apple.keylayout.Slovak",
             "com.apple.keylayout.SwissFrench",
-            "com.apple.keylayout.SwissGerman",
+            "com.apple.keylayout.SwissGerman"
         ]
         guard let layoutID = currentKeyboardLayoutID() else { return false }
         return allowedLayouts.contains(layoutID)
