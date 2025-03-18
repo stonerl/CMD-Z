@@ -1,8 +1,4 @@
 disabled_rules:
-  - function_body_length
-  - inclusive_language
-  - line_length
-  - opening_brace
 
 custom_rules:
   workaround:
