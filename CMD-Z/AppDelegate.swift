@@ -178,7 +178,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     bundleId == "com.microsoft.Excel" ||
                     bundleId == "com.microsoft.PowerPoint" ||
                     bundleId == "com.microsoft.Outlook" ||
-                    bundleId == "com.microsoft.onenote.mac"
+                    bundleId == "com.microsoft.onenote.mac" ||
+                    bundleId == "org.libreoffice.script"
             }
             return false
         }()
