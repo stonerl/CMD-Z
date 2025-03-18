@@ -42,8 +42,8 @@ class KeyboardHandler {
         return allowedLayouts.contains(layoutID)
     }
 
-    /// Checks if the frontmost app is an Office (or related) app.
-    static func isOfficeApp() -> Bool {
+    /// Checks if the frontmost app is an app that uses Windows style shortcuts for Redo (CMD+Y).
+    static func hasWindowsShortcut() -> Bool {
         if let bundleId = NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
             logger.debug("Frontmost application: \(bundleId)")
             if bundleId.hasPrefix("com.microsoft.") {
@@ -53,10 +53,8 @@ class KeyboardHandler {
                     bundleId == "com.microsoft.Outlook" ||
                     bundleId == "com.microsoft.onenote.mac"
             } else {
-                return bundleId == "org.libreoffice.script" ||
-                    bundleId == "de.akademische.sse30" ||
-                    bundleId == "de.akademische.steuertippscenter30" ||
-                    bundleId.hasPrefix("org.gimp.gimp")
+                return bundleId.hasPrefix("org.libreoffice.") ||
+                    bundleId.hasPrefix("org.gimp.")
             }
         }
         return false
@@ -72,13 +70,13 @@ class KeyboardHandler {
         let flags = event.flags
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
         let allowedLayout = isAllowedKeyboardLayout()
-        let officeApp = isOfficeApp()
+        let windowsShortcut = hasWindowsShortcut()
 
         // If the current layout is not allowed...
         if !allowedLayout {
-            // ...and we're in an Office app, then if Command+Shift+Z is pressed,
+            // ...and we're in an app with Windows style shortcuts, then if Command+Shift+Z is pressed,
             // remove the Shift modifier and remap to Command+Y.
-            if officeApp, flags.contains(.maskCommand), flags.contains(.maskShift), keyCode == 6 {
+            if windowsShortcut, flags.contains(.maskCommand), flags.contains(.maskShift), keyCode == 6 {
                 var newFlags = flags
                 newFlags.remove(.maskShift)
                 event.flags = newFlags
@@ -89,15 +87,15 @@ class KeyboardHandler {
 
         // For allowed keyboard layouts, perform full remapping.
         if flags.contains(.maskCommand) {
-            // Special case: For Office apps, if Command+Shift+Y is pressed, remove Shift.
-            if officeApp, flags.contains(.maskShift), keyCode == 16 {
+            // Special case: For apps with Windows style shortcuts, if Command+Shift+Y is pressed, remove Shift.
+            if windowsShortcut, flags.contains(.maskShift), keyCode == 16 {
                 var newFlags = flags
                 newFlags.remove(.maskShift)
                 event.flags = newFlags
                 return Unmanaged.passUnretained(event)
             }
 
-            // For both Office and non-Office apps, swap 'Z' (key code 6) and 'Y' (key code 16).
+            // For both all apps, swap 'Z' (key code 6) and 'Y' (key code 16).
             if keyCode == 6 || keyCode == 16 {
                 event.setIntegerValueField(.keyboardEventKeycode, value: keyCode == 6 ? 16 : 6)
             }
