@@ -14,8 +14,7 @@ private let logger = Logger(subsystem: "de.fauler-apfel.CMD-Z", category: "AppDe
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
-    var eventTap: CFMachPort?
-    var isRemappingEnabled = true // Track remapping state
+    var isRemappingEnabled = true
     var isAutostartEnabled: Bool {
         get { UserDefaults.standard.bool(forKey: "isAutostartEnabled") }
         set { UserDefaults.standard.setValue(newValue, forKey: "isAutostartEnabled") }
@@ -75,8 +74,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
         statusItem?.menu = menu
 
-        // Start the key event tap (if used)
-        startEventTap()
+        // Start the key event tap using EventHandler
+        EventHandler.shared.startEventTap()
 
         // Ensure autostart is enabled if previously set
         if isAutostartEnabled {
@@ -124,52 +123,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    func startEventTap() {
-        guard eventTap == nil else {
-            logger.info("Event tap is already running.")
-            return
-        }
-
-        let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
-        eventTap = CGEvent.tapCreate(
-            tap: .cghidEventTap,
-            place: .headInsertEventTap,
-            options: .defaultTap,
-            eventsOfInterest: CGEventMask(eventMask),
-            callback: AppDelegate.eventTapCallback,
-            userInfo: nil
-        )
-
-        guard let eventTap else {
-            logger.error("Failed to create event tap")
-            return
-        }
-
-        let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
-        CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
-        CGEvent.tapEnable(tap: eventTap, enable: true)
-    }
-
     func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         return KeyboardHandler.handleCGEvent(type: type, event: event)
     }
 
-    static let eventTapCallback: CGEventTapCallBack = { _, type, event, _ in
-        if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-            if let eventTap = AppDelegate.shared?.eventTap {
-                CGEvent.tapEnable(tap: eventTap, enable: true)
-            }
-            return Unmanaged.passUnretained(event)
-        }
-        return AppDelegate.shared?.handleCGEvent(type: type, event: event) ?? Unmanaged.passUnretained(event)
-    }
-
     @objc func quitApp() {
-        if let eventTap {
-            CGEvent.tapEnable(tap: eventTap, enable: false)
-            CFMachPortInvalidate(eventTap)
-            self.eventTap = nil
-        }
+        EventHandler.shared.stopEventTap()
         NSApplication.shared.terminate(self)
     }
 
