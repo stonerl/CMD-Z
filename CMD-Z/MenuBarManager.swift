@@ -20,9 +20,11 @@ class MenuBarManager {
     func createMenuBarItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         guard let button = statusItem?.button else { return }
+
         if let image = NSImage(named: "MenuBar") {
             // Adjust the image size to fit the menu bar
             image.size = NSSize(width: 24, height: 24)
+            image.isTemplate = true // Ensures the image adapts to light/dark mode
             button.image = image
         }
         updateAppearance(isEnabled: true)
