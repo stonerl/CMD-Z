@@ -211,18 +211,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return Unmanaged.passUnretained(event)
         }
 
-        // Only remap if the current keyboard layout is one of the specified layouts.
-        guard isAllowedKeyboardLayout() else {
-            return Unmanaged.passUnretained(event)
-        }
-
         let flags = event.flags
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
 
+        let allowedLayout = isAllowedKeyboardLayout()
         let officeApp = isOfficeApp()
 
+        // If the current layout is not allowed...
+        if !allowedLayout {
+            // ...and we're in an Office app, then if Command+Shift+Z is pressed,
+            // remove the Shift modifier and remap to Command+Y.
+            if officeApp, flags.contains(.maskCommand), flags.contains(.maskShift), keyCode == 6 {
+                var newFlags = flags
+                newFlags.remove(.maskShift)
+                event.flags = newFlags
+                event.setIntegerValueField(.keyboardEventKeycode, value: 16)
+            }
+            return Unmanaged.passUnretained(event)
+        }
+
+        // For allowed keyboard layouts, perform full remapping.
         if flags.contains(.maskCommand) {
-            // Special case: For Office apps, if Command+Shift+Y is pressed, remove Shift and return
+            // Special case: For Office apps, if Command+Shift+Y is pressed, remove Shift.
             if keyCode == 16 && flags.contains(.maskShift) && officeApp {
                 var newFlags = flags
                 newFlags.remove(.maskShift)
@@ -230,7 +240,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 return Unmanaged.passUnretained(event)
             }
 
-            // For both Office and non-Office apps, swap 'Z' and 'Y' keys
+            // For both Office and non-Office apps, swap 'Z' (key code 6) and 'Y' (key code 16).
             if keyCode == 6 || keyCode == 16 {
                 event.setIntegerValueField(.keyboardEventKeycode, value: keyCode == 6 ? 16 : 6)
             }
