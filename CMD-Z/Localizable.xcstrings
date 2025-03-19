@@ -1,11 +1,17 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Accessibility Access Not Enabled" : {
+      "comment" : "Alert title for missing accessibility access"
+    },
     "Accessibility Access Required" : {
       "comment" : "Alert title for missing accessibility access"
     },
-    "CMD-Z requires accessibility access to function properly.\n\nPlease grant accessibility access in System Preferences." : {
+    "CMD-Z requires accessibility access to function properly.\n\nClick “Continue” to proceed. macOS will ask for permission." : {
       "comment" : "Alert message"
+    },
+    "Continue" : {
+      "comment" : "Button title to proceed"
     },
     "Enabled" : {
       "comment" : "Menu item for enabling or disabling remapping",
@@ -52,7 +58,10 @@
       }
     },
     "Open Settings" : {
-      "comment" : "Button title to open privacy settings"
+      "comment" : "Button to open System Settings"
+    },
+    "Please enable CMD-Z in the Privacy & Securiy Settings.\n\nIf CMD-Z is missing from the list, click the “+” button at the bottom of the list and add it manually." : {
+      "comment" : "Alert message"
     },
     "Quit" : {
       "comment" : "Quit button title"

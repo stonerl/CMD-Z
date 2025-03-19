@@ -20,24 +20,38 @@ class EventHandler {
             return
         }
 
-        // If accessibility access is already granted, proceed immediately
         if AccessibilityChecker.shared.isAccessibilityEnabled {
             setupEventTap()
             return
         }
 
-        // Show alert once and start polling for access
-        DispatchQueue.main.async {
-            AccessibilityChecker.shared.showAccessibilityAlert {
-                // Start checking periodically if access is granted
-                Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-                    if AccessibilityChecker.shared.isAccessibilityEnabled {
-                        timer.invalidate() // Stop checking
-                        DispatchQueue.main.async {
-                            self.logger.info("Accessibility access granted. Proceeding with event tap setup.")
-                            self.setupEventTap()
-                        }
-                    }
+        if AccessibilityChecker.shared.isAppInAccessibilityList {
+            // App is in the list but not enabled—prompt user to enable manually
+            AccessibilityChecker.shared.showManualEnableAlert()
+            waitForAccessibilityAndSetup()
+            return
+        }
+
+        // Step 1: Show our dialog first
+        AccessibilityChecker.shared.showAccessibilityAlert {
+            self.logger.info("User clicked Continue. Triggering system dialog...")
+
+            // Step 2: Attempt event tap setup to trigger macOS system prompt
+            self.setupEventTap()
+
+            // Step 3: Start polling for accessibility access
+            self.waitForAccessibilityAndSetup()
+        }
+    }
+
+    /// Polls for accessibility access and sets up the event tap once granted
+    private func waitForAccessibilityAndSetup() {
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            if AccessibilityChecker.shared.isAccessibilityEnabled {
+                timer.invalidate() // Stop polling
+                DispatchQueue.main.async {
+                    self.logger.info("Accessibility access granted. Proceeding with event tap setup.")
+                    self.setupEventTap()
                 }
             }
         }
