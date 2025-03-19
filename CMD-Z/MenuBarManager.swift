@@ -61,7 +61,7 @@ class MenuBarManager {
         menu.addItem(toggleItem)
 
         let autostartItem = NSMenuItem(
-            title: NSLocalizedString("Start at Login", comment: "Menu item for toggling autostart"),
+            title: NSLocalizedString("Open at Login", comment: "Menu item for toggling autostart"),
             action: toggleAutostartAction,
             keyEquivalent: "l"
         )

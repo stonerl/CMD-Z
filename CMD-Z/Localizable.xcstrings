@@ -60,6 +60,9 @@
         }
       }
     },
+    "Open at Login" : {
+      "comment" : "Menu item for toggling autostart"
+    },
     "Open Settings" : {
       "comment" : "Button to open System Settings"
     },
@@ -79,6 +82,7 @@
     },
     "Start at Login" : {
       "comment" : "Menu item for toggling autostart",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
