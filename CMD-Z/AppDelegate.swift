@@ -64,20 +64,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         AutostartManager.shared.enableAutostart(isAutostartEnabled)
     }
 
-    func applicationDidBecomeActive(_: Notification) {
-        let menuConfig = MenuConfiguration(
-            isRemappingEnabled: isRemappingEnabled,
-            isAutostartEnabled: isAutostartEnabled
-        )
-        MenuBarManager.shared.setupMenu(
-            toggleRemappingAction: #selector(toggleRemapping),
-            toggleAutostartAction: #selector(toggleAutostart),
-            quitAction: #selector(quitApp),
-            target: self,
-            configuration: menuConfig
-        )
-    }
-
     @objc func quitApp() {
         EventHandler.shared.stopEventTap()
         NSApplication.shared.terminate(self)

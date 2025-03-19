@@ -20,6 +20,31 @@ class EventHandler {
             return
         }
 
+        // If accessibility access is already granted, proceed immediately
+        if AccessibilityChecker.shared.isAccessibilityEnabled {
+            setupEventTap()
+            return
+        }
+
+        // Show alert once and start polling for access
+        DispatchQueue.main.async {
+            AccessibilityChecker.shared.showAccessibilityAlert {
+                // Start checking periodically if access is granted
+                Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+                    if AccessibilityChecker.shared.isAccessibilityEnabled {
+                        timer.invalidate() // Stop checking
+                        DispatchQueue.main.async {
+                            self.logger.info("Accessibility access granted. Proceeding with event tap setup.")
+                            self.setupEventTap()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Sets up the event tap once accessibility access is granted
+    private func setupEventTap() {
         let eventMask = (1 << CGEventType.keyDown.rawValue)
         eventTap = CGEvent.tapCreate(
             tap: .cghidEventTap,
