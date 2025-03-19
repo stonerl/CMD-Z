@@ -54,7 +54,7 @@ class MenuBarManager {
         let toggleItem = NSMenuItem(
             title: NSLocalizedString("Enabled", comment: "Menu item for enabling or disabling remapping"),
             action: toggleRemappingAction,
-            keyEquivalent: ""
+            keyEquivalent: "e"
         )
         toggleItem.target = target
         toggleItem.state = configuration.isRemappingEnabled ? .on : .off
@@ -63,7 +63,7 @@ class MenuBarManager {
         let autostartItem = NSMenuItem(
             title: NSLocalizedString("Start at Login", comment: "Menu item for toggling autostart"),
             action: toggleAutostartAction,
-            keyEquivalent: ""
+            keyEquivalent: "l"
         )
         autostartItem.target = target
         autostartItem.state = configuration.isAutostartEnabled ? .on : .off
@@ -74,7 +74,7 @@ class MenuBarManager {
         let quitItem = NSMenuItem(
             title: NSLocalizedString("Quit CMD-Z", comment: "Menu item for quitting the application"),
             action: quitAction,
-            keyEquivalent: ""
+            keyEquivalent: "q"
         )
         quitItem.target = target
         menu.addItem(quitItem)
