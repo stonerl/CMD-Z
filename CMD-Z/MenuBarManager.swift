@@ -71,6 +71,16 @@ class MenuBarManager {
 
         menu.addItem(NSMenuItem.separator())
 
+        let supportItem = NSMenuItem(
+            title: NSLocalizedString("Get Help", comment: "Menu item for getting help"),
+            action: #selector(MenuBarManager.getSupport),
+            keyEquivalent: "h"
+        )
+        supportItem.target = self
+        menu.addItem(supportItem)
+
+        menu.addItem(NSMenuItem.separator())
+
         let quitItem = NSMenuItem(
             title: NSLocalizedString("Quit CMD-Z", comment: "Menu item for quitting the application"),
             action: quitAction,
@@ -80,5 +90,11 @@ class MenuBarManager {
         menu.addItem(quitItem)
 
         statusItem?.menu = menu
+    }
+
+    @objc func getSupport() {
+        if let url = URL(string: "https://fauler-apfel.de/cmd-z") {
+            NSWorkspace.shared.open(url)
+        }
     }
 }

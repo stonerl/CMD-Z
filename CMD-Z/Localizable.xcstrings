@@ -46,6 +46,9 @@
         }
       }
     },
+    "Get Help" : {
+      "comment" : "Menu item for getting help"
+    },
     "OK" : {
       "comment" : "Alert confirmation button",
       "localizations" : {
