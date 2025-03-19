@@ -10,9 +10,22 @@
 		E2463AA92D8768F00097FDF5 /* CMD-Z.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "CMD-Z.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E20DD1C32D8B60D7006E2489 /* Exceptions for "CMD-Z" folder in "CMD-Z" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E2463AA82D8768F00097FDF5 /* CMD-Z */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E2463AAB2D8768F00097FDF5 /* CMD-Z */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E20DD1C32D8B60D7006E2489 /* Exceptions for "CMD-Z" folder in "CMD-Z" target */,
+			);
 			path = "CMD-Z";
 			sourceTree = "<group>";
 		};
@@ -269,6 +282,7 @@
 				DEVELOPMENT_TEAM = 456BPWQ6U5;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "CMD-Z/Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -299,6 +313,7 @@
 				DEVELOPMENT_TEAM = 456BPWQ6U5;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "CMD-Z/Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
