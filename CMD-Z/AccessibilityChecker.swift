@@ -29,10 +29,25 @@ import Cocoa
     @objc func showAccessibilityAlert(completion: @escaping () -> Void) {
         DispatchQueue.main.async {
             let alert = NSAlert()
-            alert.messageText = NSLocalizedString("Accessibility Access Required", comment: "Alert title for missing accessibility access")
-            alert.informativeText = NSLocalizedString("CMD-Z requires accessibility access to function properly. Please grant accessibility access in System Preferences.", comment: "Alert message")
-            alert.addButton(withTitle: NSLocalizedString("Open Privacy", comment: "Button title to open privacy settings"))
-            alert.addButton(withTitle: NSLocalizedString("Quit", comment: "Quit button title"))
+            alert.messageText = NSLocalizedString(
+                "Accessibility Access Required",
+                comment: "Alert title for missing accessibility access"
+            )
+            alert.informativeText = NSLocalizedString(
+                """
+                CMD-Z requires accessibility access to function properly.
+
+                Please grant access in System Settings.
+                """,
+                comment: "Alert message"
+            )
+            alert.addButton(withTitle: NSLocalizedString(
+                "Open Settings",
+                comment: "Button title to open privacy settings"
+            ))
+            alert.addButton(withTitle: NSLocalizedString(
+                "Quit", comment: "Quit button title"
+            ))
 
             let response = alert.runModal()
 

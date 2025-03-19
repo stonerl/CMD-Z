@@ -4,7 +4,7 @@
     "Accessibility Access Required" : {
       "comment" : "Alert title for missing accessibility access"
     },
-    "CMD-Z requires accessibility access to function properly. Please grant accessibility access in System Preferences." : {
+    "CMD-Z requires accessibility access to function properly.\n\nPlease grant accessibility access in System Preferences." : {
       "comment" : "Alert message"
     },
     "Enabled" : {
@@ -51,7 +51,7 @@
         }
       }
     },
-    "Open Privacy" : {
+    "Open Settings" : {
       "comment" : "Button title to open privacy settings"
     },
     "Quit" : {
