@@ -12,9 +12,16 @@ struct MenuConfiguration {
     let isAutostartEnabled: Bool
 }
 
-class MenuBarManager {
+class MenuBarManager: NSObject, NSMenuDelegate {
     static let shared = MenuBarManager()
     var statusItem: NSStatusItem?
+
+    // Store the last configuration parameters for dynamic menu updates
+    var lastToggleRemappingAction: Selector?
+    var lastToggleAutostartAction: Selector?
+    var lastQuitAction: Selector?
+    var lastTarget: AnyObject?
+    var lastConfiguration: MenuConfiguration?
 
     /// Creates the menu bar item using the asset catalog image.
     func createMenuBarItem() {
@@ -51,6 +58,27 @@ class MenuBarManager {
     {
         let menu = NSMenu()
 
+        // Save configuration for dynamic updates
+        lastToggleRemappingAction = toggleRemappingAction
+        lastToggleAutostartAction = toggleAutostartAction
+        lastQuitAction = quitAction
+        lastTarget = target
+        lastConfiguration = configuration
+
+        // Set the menu delegate to self for dynamic updates
+        menu.delegate = self
+
+        if !AccessibilityChecker.shared.isAccessibilityEnabled {
+            let accessibilityItem = NSMenuItem(
+                title: NSLocalizedString("Enable Accessibility", comment: "Menu item to open Accessibility settings"),
+                action: #selector(AccessibilityChecker.openAccessibilitySettings),
+                keyEquivalent: ""
+            )
+            accessibilityItem.target = AccessibilityChecker.shared
+            menu.addItem(accessibilityItem)
+            menu.addItem(NSMenuItem.separator())
+        }
+
         let toggleItem = NSMenuItem(
             title: NSLocalizedString("Enabled", comment: "Menu item for enabling or disabling remapping"),
             action: toggleRemappingAction,
@@ -80,5 +108,61 @@ class MenuBarManager {
         menu.addItem(quitItem)
 
         statusItem?.menu = menu
+    }
+}
+
+extension MenuBarManager {
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        // Remove all existing items
+        menu.removeAllItems()
+
+        // Rebuild the menu using the last stored configuration
+        guard let target = lastTarget,
+              let toggleRemappingAction = lastToggleRemappingAction,
+              let toggleAutostartAction = lastToggleAutostartAction,
+              let quitAction = lastQuitAction,
+              let configuration = lastConfiguration
+        else {
+            return
+        }
+
+        if !AccessibilityChecker.shared.isAccessibilityEnabled {
+            let accessibilityItem = NSMenuItem(
+                title: NSLocalizedString("Enable Accessibility", comment: "Menu item to open Accessibility settings"),
+                action: #selector(AccessibilityChecker.openAccessibilitySettings),
+                keyEquivalent: ""
+            )
+            accessibilityItem.target = AccessibilityChecker.shared
+            menu.addItem(accessibilityItem)
+            menu.addItem(NSMenuItem.separator())
+        }
+
+        let toggleItem = NSMenuItem(
+            title: NSLocalizedString("Enabled", comment: "Menu item for enabling or disabling remapping"),
+            action: toggleRemappingAction,
+            keyEquivalent: ""
+        )
+        toggleItem.target = target
+        toggleItem.state = configuration.isRemappingEnabled ? .on : .off
+        menu.addItem(toggleItem)
+
+        let autostartItem = NSMenuItem(
+            title: NSLocalizedString("Start at Login", comment: "Menu item for toggling autostart"),
+            action: toggleAutostartAction,
+            keyEquivalent: ""
+        )
+        autostartItem.target = target
+        autostartItem.state = configuration.isAutostartEnabled ? .on : .off
+        menu.addItem(autostartItem)
+
+        menu.addItem(NSMenuItem.separator())
+
+        let quitItem = NSMenuItem(
+            title: NSLocalizedString("Quit CMD-Z", comment: "Menu item for quitting the application"),
+            action: quitAction,
+            keyEquivalent: ""
+        )
+        quitItem.target = target
+        menu.addItem(quitItem)
     }
 }

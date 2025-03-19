@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Enable Accessibility" : {
+      "comment" : "Menu item to open Accessibility settings"
+    },
     "Enabled" : {
       "comment" : "Menu item for enabling or disabling remapping",
       "localizations" : {
