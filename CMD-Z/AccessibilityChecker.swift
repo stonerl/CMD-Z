@@ -21,9 +21,6 @@ import Cocoa
         let isTrusted = AXIsProcessTrusted()
         let wasPromptedBefore = UserDefaults.standard.bool(forKey: "wasPromptedBefore")
 
-        print("DEBUG: isTrusted = \(isTrusted)")
-        print("DEBUG: wasPromptedBefore (UserDefaults) = \(wasPromptedBefore)")
-
         return !isTrusted && wasPromptedBefore
     }
 
