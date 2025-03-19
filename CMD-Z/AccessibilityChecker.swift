@@ -39,29 +39,27 @@ import Cocoa
     /// Presents an alert informing the user that accessibility access is required.
     @objc func showAccessibilityAlert(completion: @escaping () -> Void) {
         DispatchQueue.main.async {
-            // Mark that we have prompted the user before
             UserDefaults.standard.set(true, forKey: "wasPromptedBefore")
 
             let alert = NSAlert()
             alert.messageText = NSLocalizedString(
                 "Accessibility Access Required",
-                comment: "Alert title for missing accessibility access"
+                comment: "Alert title for initial accessibility permission"
             )
             alert.informativeText = NSLocalizedString(
                 """
-                CMD-Z requires accessibility access to function properly.
+                CMD-Z requires permission in Privacy & Security Settings.
 
-                Click “Continue” to proceed. macOS will ask for permission.
+                Click “Continue” to grant access when prompted.
                 """,
-                comment: "Alert message"
+                comment: "First-time alert message"
             )
             alert.addButton(withTitle: NSLocalizedString("Continue", comment: "Button title to proceed"))
             alert.addButton(withTitle: NSLocalizedString("Quit", comment: "Quit button title"))
 
             let response = alert.runModal()
-
             if response == .alertFirstButtonReturn {
-                completion() // Proceed with event tap setup
+                completion()
             } else if response == .alertSecondButtonReturn {
                 AppDelegate.shared?.quitApp()
             }
@@ -72,22 +70,21 @@ import Cocoa
         DispatchQueue.main.async {
             let alert = NSAlert()
             alert.messageText = NSLocalizedString(
-                "Accessibility Access Not Enabled",
-                comment: "Alert title for missing accessibility access"
+                "Accessibility Access Required",
+                comment: "Alert title when access is disabled or denied"
             )
             alert.informativeText = NSLocalizedString(
                 """
-                Please enable CMD-Z in the Privacy & Securiy Settings.
+                CMD-Z requires permission in Privacy & Security Settings.
 
-                If CMD-Z is missing from the list, click the “+” button at the bottom of the list and add it manually.
+                If CMD-Z is missing, add it using the “+” button below the list.
                 """,
-                comment: "Alert message"
+                comment: "Manual alert message"
             )
             alert.addButton(withTitle: NSLocalizedString("Open Settings", comment: "Button to open System Settings"))
             alert.addButton(withTitle: NSLocalizedString("Quit", comment: "Quit button title"))
 
             let response = alert.runModal()
-
             if response == .alertFirstButtonReturn {
                 self.openAccessibilitySettings()
             } else if response == .alertSecondButtonReturn {

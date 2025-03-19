@@ -1,14 +1,14 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Accessibility Access Not Enabled" : {
-      "comment" : "Alert title for missing accessibility access"
-    },
     "Accessibility Access Required" : {
-      "comment" : "Alert title for missing accessibility access"
+      "comment" : "Alert title for initial accessibility permission\nAlert title when access is disabled or denied"
     },
-    "CMD-Z requires accessibility access to function properly.\n\nClick “Continue” to proceed. macOS will ask for permission." : {
-      "comment" : "Alert message"
+    "CMD-Z requires permission in Privacy & Security Settings.\n\nClick “Continue” to grant access when prompted." : {
+      "comment" : "First-time alert message"
+    },
+    "CMD-Z requires permission in Privacy & Security Settings.\n\nIf CMD-Z is missing, add it using the “+” button below the list." : {
+      "comment" : "Manual alert message"
     },
     "Continue" : {
       "comment" : "Button title to proceed"
@@ -59,9 +59,6 @@
     },
     "Open Settings" : {
       "comment" : "Button to open System Settings"
-    },
-    "Please enable CMD-Z in the Privacy & Securiy Settings.\n\nIf CMD-Z is missing from the list, click the “+” button at the bottom of the list and add it manually." : {
-      "comment" : "Alert message"
     },
     "Quit" : {
       "comment" : "Quit button title"
