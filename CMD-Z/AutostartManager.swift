@@ -19,19 +19,19 @@ class AutostartManager {
         do {
             if enable {
                 try appService.register()
-                logger.info("Start at Login enabled")
+                logger.info("Open at Login enabled")
             } else {
                 try appService.unregister()
-                logger.info("Start at Login disabled")
+                logger.info("Open at Login disabled")
             }
         } catch {
-            logger.error("Failed to update Start at Login setting: \(error.localizedDescription)")
+            logger.error("Failed to update Open at Login setting: \(error.localizedDescription)")
 
             // Optionally, display an alert if needed:
             let alert = NSAlert()
             alert.messageText = NSLocalizedString("Error", comment: "Alert title for errors")
             alert.informativeText = String(
-                format: NSLocalizedString("Failed to update Start at Login setting: %@",
+                format: NSLocalizedString("Failed to update Open at Login setting: %@",
                                           comment: "Error description for autostart update failure"),
                 error.localizedDescription
             )

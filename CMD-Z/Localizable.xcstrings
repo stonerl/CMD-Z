@@ -2,16 +2,48 @@
   "sourceLanguage" : "en",
   "strings" : {
     "Accessibility Access Required" : {
-      "comment" : "Alert title for initial accessibility permission\nAlert title when access is disabled or denied"
+      "comment" : "Alert title for initial accessibility permission\nAlert title when access is disabled or denied",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zugriff auf Bedienungshilfen erforderlich"
+          }
+        }
+      }
     },
     "CMD-Z requires permission in Privacy & Security Settings.\n\nClick “Continue” to grant access when prompted." : {
-      "comment" : "First-time alert message"
+      "comment" : "First-time alert message",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CMD-Z benötigt die Berechtigung unter „Datenschutz & Sicherheit“.\n\nKlicke auf „Fortfahren“, um den Zugriff zu erlauben, wenn du dazu aufgefordert wirst."
+          }
+        }
+      }
     },
     "CMD-Z requires permission in Privacy & Security Settings.\n\nIf CMD-Z is missing, add it using the “+” button below the list." : {
-      "comment" : "Manual alert message"
+      "comment" : "Manual alert message",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CMD-Z benötigt die Berechtigung unter „Datenschutz & Sicherheit“.\n\nFalls CMD-Z fehlt, füge es mit dem „+“-Knopf unterhalb der Liste hinzu."
+          }
+        }
+      }
     },
     "Continue" : {
-      "comment" : "Button title to proceed"
+      "comment" : "Button title to proceed",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortfahren"
+          }
+        }
+      }
     },
     "Enabled" : {
       "comment" : "Menu item for enabling or disabling remapping",
@@ -35,19 +67,27 @@
         }
       }
     },
-    "Failed to update Start at Login setting: %@" : {
+    "Failed to update Open at Login setting: %@" : {
       "comment" : "Error description for autostart update failure",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fehler beim Aktualisieren der Einstellung „Beim Anmelden starten“: %@"
+            "value" : "Fehler beim Aktualisieren der Einstellung „Beim Anmelden öffnen“: %@"
           }
         }
       }
     },
     "Get Help" : {
-      "comment" : "Menu item for getting help"
+      "comment" : "Menu item for getting help",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hilfe erhalten"
+          }
+        }
+      }
     },
     "OK" : {
       "comment" : "Alert confirmation button",
@@ -61,13 +101,37 @@
       }
     },
     "Open at Login" : {
-      "comment" : "Menu item for toggling autostart"
+      "comment" : "Menu item for toggling autostart",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Anmelden öffnen"
+          }
+        }
+      }
     },
     "Open Settings" : {
-      "comment" : "Button to open System Settings"
+      "comment" : "Button to open System Settings",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen öffnen"
+          }
+        }
+      }
     },
     "Quit" : {
-      "comment" : "Quit button title"
+      "comment" : "Quit button title",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beenden"
+          }
+        }
+      }
     },
     "Quit CMD-Z" : {
       "comment" : "Menu item for quitting the application",
@@ -76,18 +140,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "„CMD-Z“ Beenden"
-          }
-        }
-      }
-    },
-    "Start at Login" : {
-      "comment" : "Menu item for toggling autostart",
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Beim Anmelden starten"
           }
         }
       }
