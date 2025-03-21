@@ -4,6 +4,9 @@
 //
 //  Created by Toni Förster on 19.03.25.
 //
+//  SPDX-License-Identifier: MIT
+//  Copyright (c) 2025 Toni Förster
+//
 
 import ApplicationServices
 import Cocoa
