@@ -23,7 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         set { UserDefaults.standard.setValue(newValue, forKey: "isAutostartEnabled") }
     }
 
-    static var shared: AppDelegate?
+    weak static var shared: AppDelegate?
 
     func applicationDidFinishLaunching(_: Notification) {
         // Assign shared instance

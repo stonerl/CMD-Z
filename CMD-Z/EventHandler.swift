@@ -15,6 +15,8 @@ class EventHandler {
     static let shared = EventHandler()
     var eventTap: CFMachPort?
 
+    private var accessibilityPollTimer: Timer?
+
     private let logger = Logger(subsystem: "de.fauler-apfel.CMD-Z", category: "EventHandler")
 
     func startEventTap() {
@@ -49,15 +51,19 @@ class EventHandler {
 
     /// Polls for accessibility access and sets up the event tap once granted
     private func waitForAccessibilityAndSetup() {
-        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-            if AccessibilityChecker.shared.isAccessibilityEnabled {
-                timer.invalidate() // Stop polling
-                DispatchQueue.main.async {
-                    self.logger.info("Accessibility access granted. Proceeding with event tap setup.")
-                    self.setupEventTap()
-                }
+        guard accessibilityPollTimer == nil else { return }
+
+        let timer = Timer(timeInterval: 1.0, repeats: true) { [weak self] timer in
+            guard AccessibilityChecker.shared.isAccessibilityEnabled else { return }
+            timer.invalidate()
+            self?.accessibilityPollTimer = nil
+            DispatchQueue.main.async {
+                self?.logger.info("Accessibility access granted. Proceeding with event tap setup.")
+                self?.setupEventTap()
             }
         }
+        accessibilityPollTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
     }
 
     /// Sets up the event tap once accessibility access is granted

@@ -24,13 +24,12 @@ class MenuBarManager {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         guard let button = statusItem?.button else { return }
 
-        if let image = NSImage(named: "MenuBar") {
+        if let image = NSImage(named: "MenuBar")?.copy() as? NSImage {
             // Adjust the image size to fit the menu bar
             image.size = NSSize(width: 24, height: 24)
             image.isTemplate = true // Ensures the image adapts to light/dark mode
             button.image = image
         }
-        updateAppearance(isEnabled: true)
     }
 
     /// Updates the appearance (e.g. alpha) of the status item.
@@ -93,6 +92,7 @@ class MenuBarManager {
         menu.addItem(quitItem)
 
         statusItem?.menu = menu
+        updateAppearance(isEnabled: configuration.isRemappingEnabled)
     }
 
     @objc func getSupport() {
