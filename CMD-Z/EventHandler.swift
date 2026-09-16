@@ -92,8 +92,10 @@ class EventHandler {
 
     static let eventTapCallback: CGEventTapCallBack = { _, type, event, _ in
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-            if let eventTap = EventHandler.shared.eventTap {
-                CGEvent.tapEnable(tap: eventTap, enable: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if let eventTap = EventHandler.shared.eventTap {
+                    CGEvent.tapEnable(tap: eventTap, enable: true)
+                }
             }
             return Unmanaged.passUnretained(event)
         }
@@ -105,7 +107,7 @@ class EventHandler {
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
 
         // Only process if Command key is active and Y or Z
-        guard flags.contains(.maskCommand), keyCode == 6 || keyCode == 16 else {
+        guard flags.contains(.maskCommand), keyCode == Int64(KeyCode.ansiZ) || keyCode == Int64(KeyCode.ansiY) else {
             return Unmanaged.passUnretained(event)
         }
 

@@ -14,6 +14,11 @@ import OSLog
 
 private let logger = Logger(subsystem: "de.fauler-apfel.CMD-Z", category: "KeyboardHandler")
 
+enum KeyCode {
+    static let ansiZ = CGKeyCode(kVK_ANSI_Z)
+    static let ansiY = CGKeyCode(kVK_ANSI_Y)
+}
+
 class KeyboardHandler {
     /// Returns the current keyboard layout ID using the Carbon TIS API.
     static func currentKeyboardLayoutID() -> String? {
@@ -21,14 +26,14 @@ class KeyboardHandler {
             return nil
         }
         if let sourceID = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID) {
-            return unsafeBitCast(sourceID, to: CFString.self) as String
+            return Unmanaged<CFString>.fromOpaque(sourceID).takeUnretainedValue() as String
         }
         return nil
     }
 
     /// Checks if the current keyboard layout is one of the allowed layouts.
     static func isAllowedKeyboardLayout() -> Bool {
-        let allowedLayouts: Set<String> = [
+        let allowedLayouts: Set = [
             "com.apple.keylayout.ABC-QWERTZ",
             "com.apple.keylayout.Albanian",
             "com.apple.keylayout.Austrian",
@@ -78,9 +83,13 @@ class KeyboardHandler {
         if !allowedLayout {
             // ...and we're in an app with Windows style shortcuts, then if Command+Shift+Z is pressed,
             // remove the Shift modifier and remap to Command+Y.
-            if windowsShortcut, flags.contains(.maskCommand), flags.contains(.maskShift), keyCode == 6 {
+            if windowsShortcut,
+               flags.contains(.maskCommand),
+               flags.contains(.maskShift),
+               keyCode == Int64(KeyCode.ansiZ)
+            {
                 event.flags.remove(.maskShift)
-                event.setIntegerValueField(.keyboardEventKeycode, value: 16)
+                event.setIntegerValueField(.keyboardEventKeycode, value: Int64(KeyCode.ansiY))
             }
             return Unmanaged.passUnretained(event)
         }
@@ -88,14 +97,15 @@ class KeyboardHandler {
         // For allowed keyboard layouts, perform full remapping.
         if flags.contains(.maskCommand) {
             // Special case: For apps with Windows style shortcuts, if Command+Shift+Y is pressed, remove Shift.
-            if windowsShortcut, flags.contains(.maskShift), keyCode == 16 {
+            if windowsShortcut, flags.contains(.maskShift), keyCode == Int64(KeyCode.ansiY) {
                 event.flags.remove(.maskShift)
                 return Unmanaged.passUnretained(event)
             }
 
             // For both all apps, swap 'Z' (key code 6) and 'Y' (key code 16).
-            if keyCode == 6 || keyCode == 16 {
-                event.setIntegerValueField(.keyboardEventKeycode, value: keyCode == 6 ? 16 : 6)
+            if keyCode == Int64(KeyCode.ansiZ) || keyCode == Int64(KeyCode.ansiY) {
+                let swapped: Int64 = keyCode == Int64(KeyCode.ansiZ) ? Int64(KeyCode.ansiY) : Int64(KeyCode.ansiZ)
+                event.setIntegerValueField(.keyboardEventKeycode, value: swapped)
             }
         }
 
