@@ -16,6 +16,7 @@ class EventHandler {
     var eventTap: CFMachPort?
 
     private var accessibilityPollTimer: Timer?
+    private var eventTapRetryCount = 0
 
     private let logger = Logger(subsystem: "de.fauler-apfel.CMD-Z", category: "EventHandler")
 
@@ -79,13 +80,38 @@ class EventHandler {
         )
 
         guard let eventTap else {
-            logger.error("Failed to create event tap")
+            eventTapRetryCount += 1
+            if eventTapRetryCount <= 3 {
+                logger.error("Failed to create event tap. Retrying (\(self.eventTapRetryCount)/3)...")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    self?.setupEventTap()
+                }
+            } else {
+                logger.error("Failed to create event tap after retries")
+                presentEventTapFailureAlert()
+            }
             return
         }
 
+        eventTapRetryCount = 0
         let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
         CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
         CGEvent.tapEnable(tap: eventTap, enable: true)
+    }
+
+    private func presentEventTapFailureAlert() {
+        DispatchQueue.main.async {
+            let alert = NSAlert()
+            alert.messageText = NSLocalizedString("Error", comment: "Alert title for errors")
+            alert.informativeText = NSLocalizedString(
+                "CMD-Z could not start. Please restart the app.",
+                comment: "Alert message when the event tap fails to start"
+            )
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: NSLocalizedString("Quit", comment: "Quit button title"))
+            alert.runModal()
+            AppDelegate.shared?.quitApp()
+        }
     }
 
     func stopEventTap() {

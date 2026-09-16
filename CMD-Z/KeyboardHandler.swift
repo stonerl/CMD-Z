@@ -79,9 +79,8 @@ class KeyboardHandler {
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
 
         // Only process if Command key is active and Y or Z
-        guard flags.contains(.maskCommand),
-              keyCode == Int64(KeyCode.ansiZ) || keyCode == Int64(KeyCode.ansiY)
-        else {
+        let isRemappableKey = keyCode == Int64(KeyCode.ansiZ) || keyCode == Int64(KeyCode.ansiY)
+        guard flags.contains(.maskCommand), isRemappableKey else {
             return Unmanaged.passUnretained(event)
         }
 

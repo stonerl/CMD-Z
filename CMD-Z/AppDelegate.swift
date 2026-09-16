@@ -19,8 +19,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var isRemappingEnabled = true
     var isAutostartEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: "isAutostartEnabled") }
-        set { UserDefaults.standard.setValue(newValue, forKey: "isAutostartEnabled") }
+        let status = SMAppService.mainApp.status
+        return status == .enabled || status == .requiresApproval
     }
 
     weak static var shared: AppDelegate?
@@ -48,11 +48,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Start the key event tap using EventHandler
         EventHandler.shared.startEventTap()
-
-        // Ensure autostart is enabled if previously set
-        if isAutostartEnabled {
-            AutostartManager.shared.enableAutostart(true)
-        }
     }
 
     @objc func toggleRemapping(_ sender: NSMenuItem) {
@@ -62,9 +57,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func toggleAutostart(_ sender: NSMenuItem) {
-        isAutostartEnabled.toggle()
+        let newValue = !isAutostartEnabled
+        AutostartManager.shared.enableAutostart(newValue)
         sender.state = isAutostartEnabled ? .on : .off
-        AutostartManager.shared.enableAutostart(isAutostartEnabled)
     }
 
     @objc func quitApp() {

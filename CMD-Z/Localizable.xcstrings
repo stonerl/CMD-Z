@@ -12,6 +12,9 @@
         }
       }
     },
+    "CMD-Z could not start. Please restart the app." : {
+      "comment" : "Alert message when the event tap fails to start"
+    },
     "CMD-Z requires permission in Privacy & Security Settings.\n\nClick “Continue” to grant access when prompted." : {
       "comment" : "First-time alert message",
       "localizations" : {
