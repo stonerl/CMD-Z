@@ -108,7 +108,6 @@ class KeyboardHandler {
             // ...and we're in an app with Windows style shortcuts, then if Command+Shift+Z is pressed,
             // remove the Shift modifier and remap to Command+Y.
             if windowsShortcut,
-               flags.contains(.maskCommand),
                flags.contains(.maskShift),
                keyCode == Int64(KeyCode.ansiZ)
             {
@@ -120,19 +119,17 @@ class KeyboardHandler {
         }
 
         // For allowed keyboard layouts, perform full remapping.
-        if flags.contains(.maskCommand) {
-            // Special case: For apps with Windows style shortcuts, if Command+Shift+Y is pressed, remove Shift.
-            if windowsShortcut, flags.contains(.maskShift), keyCode == Int64(KeyCode.ansiY) {
-                event.flags.remove(.maskShift)
-                return Unmanaged.passUnretained(event)
-            }
+        // Special case: For apps with Windows style shortcuts, if Command+Shift+Y is pressed, remove Shift.
+        if windowsShortcut, flags.contains(.maskShift), keyCode == Int64(KeyCode.ansiY) {
+            event.flags.remove(.maskShift)
+            return Unmanaged.passUnretained(event)
+        }
 
-            // For both all apps, swap 'Z' (key code 6) and 'Y' (key code 16).
-            if keyCode == Int64(KeyCode.ansiZ) || keyCode == Int64(KeyCode.ansiY) {
-                let swapped: Int64 = keyCode == Int64(KeyCode.ansiZ) ? Int64(KeyCode.ansiY) : Int64(KeyCode.ansiZ)
-                event.setIntegerValueField(.keyboardEventKeycode, value: swapped)
-                keyUpRemap[keyCode] = swapped
-            }
+        // For both all apps, swap 'Z' (key code 6) and 'Y' (key code 16).
+        if keyCode == Int64(KeyCode.ansiZ) || keyCode == Int64(KeyCode.ansiY) {
+            let swapped: Int64 = keyCode == Int64(KeyCode.ansiZ) ? Int64(KeyCode.ansiY) : Int64(KeyCode.ansiZ)
+            event.setIntegerValueField(.keyboardEventKeycode, value: swapped)
+            keyUpRemap[keyCode] = swapped
         }
 
         return Unmanaged.passUnretained(event)
