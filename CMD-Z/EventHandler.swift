@@ -11,12 +11,16 @@
 import Cocoa
 import OSLog
 
+@MainActor
 class EventHandler {
     static let shared = EventHandler()
     var eventTap: CFMachPort?
 
     private var accessibilityPollTimer: Timer?
+    private var permissionMonitorTimer: Timer?
     private var eventTapRetryCount = 0
+    private var runLoopSource: CFRunLoopSource?
+    private var didShowRevocationAlert = false
 
     private let logger = Logger(subsystem: "de.fauler-apfel.CMD-Z", category: "EventHandler")
 
@@ -25,6 +29,8 @@ class EventHandler {
             logger.info("Event tap is already running.")
             return
         }
+
+        startPermissionMonitor()
 
         if AccessibilityChecker.shared.isAccessibilityEnabled {
             setupEventTap()
@@ -55,10 +61,13 @@ class EventHandler {
         guard accessibilityPollTimer == nil else { return }
 
         let timer = Timer(timeInterval: 1.0, repeats: true) { [weak self] timer in
-            guard AccessibilityChecker.shared.isAccessibilityEnabled else { return }
+            let granted = MainActor.assumeIsolated {
+                AccessibilityChecker.shared.isAccessibilityEnabled
+            }
+            guard granted else { return }
             timer.invalidate()
-            self?.accessibilityPollTimer = nil
-            DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                self?.accessibilityPollTimer = nil
                 self?.logger.info("Accessibility access granted. Proceeding with event tap setup.")
                 self?.setupEventTap()
             }
@@ -69,7 +78,9 @@ class EventHandler {
 
     /// Sets up the event tap once accessibility access is granted
     private func setupEventTap() {
-        let eventMask = (1 << CGEventType.keyDown.rawValue)
+        guard eventTap == nil else { return }
+
+        let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
         eventTap = CGEvent.tapCreate(
             tap: .cghidEventTap,
             place: .headInsertEventTap,
@@ -82,7 +93,8 @@ class EventHandler {
         guard let eventTap else {
             eventTapRetryCount += 1
             if eventTapRetryCount <= 3 {
-                logger.error("Failed to create event tap. Retrying (\(self.eventTapRetryCount)/3)...")
+                let attempt = eventTapRetryCount
+                logger.error("Failed to create event tap. Retrying (\(attempt)/3)...")
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
                     self?.setupEventTap()
                 }
@@ -95,26 +107,54 @@ class EventHandler {
 
         eventTapRetryCount = 0
         let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
+        self.runLoopSource = runLoopSource
         CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
         CGEvent.tapEnable(tap: eventTap, enable: true)
     }
 
-    private func presentEventTapFailureAlert() {
-        DispatchQueue.main.async {
-            let alert = NSAlert()
-            alert.messageText = NSLocalizedString("Error", comment: "Alert title for errors")
-            alert.informativeText = NSLocalizedString(
-                "CMD-Z could not start. Please restart the app.",
-                comment: "Alert message when the event tap fails to start"
-            )
-            alert.alertStyle = .warning
-            alert.addButton(withTitle: NSLocalizedString("Quit", comment: "Quit button title"))
-            alert.runModal()
-            AppDelegate.shared?.quitApp()
+    /// Monitors accessibility permission and reacts to mid-session revocation.
+    private func startPermissionMonitor() {
+        guard permissionMonitorTimer == nil else { return }
+
+        let timer = Timer(timeInterval: 5.0, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                let trusted = AccessibilityChecker.shared.isAccessibilityEnabled
+
+                if !trusted, self.eventTap != nil {
+                    self.stopEventTap()
+                    if !self.didShowRevocationAlert {
+                        self.didShowRevocationAlert = true
+                        AccessibilityChecker.shared.showManualEnableAlert()
+                    }
+                } else if trusted, self.eventTap == nil {
+                    self.didShowRevocationAlert = false
+                    self.setupEventTap()
+                }
+            }
         }
+        permissionMonitorTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
+    }
+
+    private func presentEventTapFailureAlert() {
+        let alert = NSAlert()
+        alert.messageText = NSLocalizedString("Error", comment: "Alert title for errors")
+        alert.informativeText = NSLocalizedString(
+            "CMD-Z could not start. Please restart the app.",
+            comment: "Alert message when the event tap fails to start"
+        )
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: NSLocalizedString("Quit", comment: "Quit button title"))
+        alert.runModal()
+        AppDelegate.shared?.quitApp()
     }
 
     func stopEventTap() {
+        if let runLoopSource {
+            CFRunLoopRemoveSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
+            self.runLoopSource = nil
+        }
         if let eventTap {
             CGEvent.tapEnable(tap: eventTap, enable: false)
             CFMachPortInvalidate(eventTap)

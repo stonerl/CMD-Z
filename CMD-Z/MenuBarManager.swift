@@ -15,6 +15,7 @@ struct MenuConfiguration {
     let isAutostartEnabled: Bool
 }
 
+@MainActor
 class MenuBarManager {
     static let shared = MenuBarManager()
     var statusItem: NSStatusItem?

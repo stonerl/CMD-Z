@@ -19,6 +19,7 @@ enum KeyCode {
     static let ansiY = CGKeyCode(kVK_ANSI_Y)
 }
 
+@MainActor
 class KeyboardHandler {
     /// Returns the current keyboard layout ID using the Carbon TIS API.
     static func currentKeyboardLayoutID() -> String? {
@@ -66,21 +67,36 @@ class KeyboardHandler {
         "org.libreoffice.script"
     ]
 
+    /// Maps a physical key code to the remapped key code for its matching key-up event.
+    private static var keyUpRemap: [Int64: Int64] = [:]
+
     /// Handles a key event by performing remapping based on the current layout and target application.
-    static func handleCGEvent(type _: CGEventType,
+    static func handleCGEvent(type: CGEventType,
                               event: CGEvent,
                               isRemappingEnabled: Bool) -> Unmanaged<CGEvent>?
     {
         guard isRemappingEnabled else {
+            keyUpRemap.removeAll()
+            return Unmanaged.passUnretained(event)
+        }
+
+        let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
+
+        if type == .keyUp {
+            if let mapped = keyUpRemap.removeValue(forKey: keyCode) {
+                event.setIntegerValueField(.keyboardEventKeycode, value: mapped)
+            }
+            return Unmanaged.passUnretained(event)
+        }
+
+        let isRemappableKey = keyCode == Int64(KeyCode.ansiZ) || keyCode == Int64(KeyCode.ansiY)
+        guard isRemappableKey else {
             return Unmanaged.passUnretained(event)
         }
 
         let flags = event.flags
-        let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-
-        // Only process if Command key is active and Y or Z
-        let isRemappableKey = keyCode == Int64(KeyCode.ansiZ) || keyCode == Int64(KeyCode.ansiY)
-        guard flags.contains(.maskCommand), isRemappableKey else {
+        guard flags.contains(.maskCommand) else {
+            keyUpRemap.removeValue(forKey: keyCode)
             return Unmanaged.passUnretained(event)
         }
 
@@ -98,6 +114,7 @@ class KeyboardHandler {
             {
                 event.flags.remove(.maskShift)
                 event.setIntegerValueField(.keyboardEventKeycode, value: Int64(KeyCode.ansiY))
+                keyUpRemap[keyCode] = Int64(KeyCode.ansiY)
             }
             return Unmanaged.passUnretained(event)
         }
@@ -114,6 +131,7 @@ class KeyboardHandler {
             if keyCode == Int64(KeyCode.ansiZ) || keyCode == Int64(KeyCode.ansiY) {
                 let swapped: Int64 = keyCode == Int64(KeyCode.ansiZ) ? Int64(KeyCode.ansiY) : Int64(KeyCode.ansiZ)
                 event.setIntegerValueField(.keyboardEventKeycode, value: swapped)
+                keyUpRemap[keyCode] = swapped
             }
         }
 

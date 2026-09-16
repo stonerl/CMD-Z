@@ -15,6 +15,7 @@ import ServiceManagement
 private let logger = Logger(subsystem: "de.fauler-apfel.CMD-Z", category: "AppDelegate")
 
 @main
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var isRemappingEnabled = true

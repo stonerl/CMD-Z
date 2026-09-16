@@ -12,6 +12,7 @@ import Cocoa
 import OSLog
 import ServiceManagement
 
+@MainActor
 class AutostartManager {
     static let shared = AutostartManager()
     private let logger = Logger(subsystem: "de.fauler-apfel.CMD-Z", category: "AutostartManager")

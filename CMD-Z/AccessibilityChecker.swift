@@ -11,16 +11,17 @@
 import ApplicationServices
 import Cocoa
 
-@objc class AccessibilityChecker: NSObject {
-    @objc static let shared = AccessibilityChecker()
+@MainActor
+class AccessibilityChecker {
+    static let shared = AccessibilityChecker()
 
     /// Returns true if the app is trusted for accessibility features.
-    @objc var isAccessibilityEnabled: Bool {
+    var isAccessibilityEnabled: Bool {
         AXIsProcessTrusted()
     }
 
     /// Returns true if the app is in the accessibility list but not enabled.
-    @objc var isAppInAccessibilityList: Bool {
+    var isAppInAccessibilityList: Bool {
         let isTrusted = AXIsProcessTrusted()
         let wasPromptedBefore = UserDefaults.standard.bool(forKey: "wasPromptedBefore")
 
@@ -28,7 +29,7 @@ import Cocoa
     }
 
     /// Opens the Accessibility settings in System Preferences.
-    @objc func openAccessibilitySettings() {
+    func openAccessibilitySettings() {
         guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")
         else {
             return
@@ -37,48 +38,44 @@ import Cocoa
     }
 
     /// Presents an alert informing the user that accessibility access is required.
-    @objc func showAccessibilityAlert(completion: @escaping () -> Void) {
-        DispatchQueue.main.async {
-            UserDefaults.standard.set(true, forKey: "wasPromptedBefore")
+    func showAccessibilityAlert(completion: @escaping () -> Void) {
+        UserDefaults.standard.set(true, forKey: "wasPromptedBefore")
 
-            self.presentAlert(
-                title: NSLocalizedString(
-                    "Accessibility Access Required",
-                    comment: "Alert title for initial accessibility permission"
-                ),
-                message: NSLocalizedString(
-                    """
-                    CMD-Z requires permission in Privacy & Security Settings.
+        presentAlert(
+            title: NSLocalizedString(
+                "Accessibility Access Required",
+                comment: "Alert title for initial accessibility permission"
+            ),
+            message: NSLocalizedString(
+                """
+                CMD-Z requires permission in Privacy & Security Settings.
 
-                    Click “Continue” to grant access when prompted.
-                    """,
-                    comment: "First-time alert message"
-                ),
-                actionTitle: NSLocalizedString("Continue", comment: "Button title to proceed"),
-                action: completion
-            )
-        }
+                Click “Continue” to grant access when prompted.
+                """,
+                comment: "First-time alert message"
+            ),
+            actionTitle: NSLocalizedString("Continue", comment: "Button title to proceed"),
+            action: completion
+        )
     }
 
-    @objc func showManualEnableAlert() {
-        DispatchQueue.main.async {
-            self.presentAlert(
-                title: NSLocalizedString(
-                    "Accessibility Access Required",
-                    comment: "Alert title when access is disabled or denied"
-                ),
-                message: NSLocalizedString(
-                    """
-                    CMD-Z requires permission in Privacy & Security Settings.
+    func showManualEnableAlert() {
+        presentAlert(
+            title: NSLocalizedString(
+                "Accessibility Access Required",
+                comment: "Alert title when access is disabled or denied"
+            ),
+            message: NSLocalizedString(
+                """
+                CMD-Z requires permission in Privacy & Security Settings.
 
-                    If CMD-Z is missing, add it using the “+” button below the list.
-                    """,
-                    comment: "Manual alert message"
-                ),
-                actionTitle: NSLocalizedString("Open Settings", comment: "Button to open System Settings"),
-                action: self.openAccessibilitySettings
-            )
-        }
+                If CMD-Z is missing, add it using the “+” button below the list.
+                """,
+                comment: "Manual alert message"
+            ),
+            actionTitle: NSLocalizedString("Open Settings", comment: "Button to open System Settings"),
+            action: openAccessibilitySettings
+        )
     }
 
     /// Shared alert presentation for accessibility-related prompts.
