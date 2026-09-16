@@ -41,55 +41,63 @@ import Cocoa
         DispatchQueue.main.async {
             UserDefaults.standard.set(true, forKey: "wasPromptedBefore")
 
-            let alert = NSAlert()
-            alert.messageText = NSLocalizedString(
-                "Accessibility Access Required",
-                comment: "Alert title for initial accessibility permission"
-            )
-            alert.informativeText = NSLocalizedString(
-                """
-                CMD-Z requires permission in Privacy & Security Settings.
+            self.presentAlert(
+                title: NSLocalizedString(
+                    "Accessibility Access Required",
+                    comment: "Alert title for initial accessibility permission"
+                ),
+                message: NSLocalizedString(
+                    """
+                    CMD-Z requires permission in Privacy & Security Settings.
 
-                Click “Continue” to grant access when prompted.
-                """,
-                comment: "First-time alert message"
+                    Click “Continue” to grant access when prompted.
+                    """,
+                    comment: "First-time alert message"
+                ),
+                actionTitle: NSLocalizedString("Continue", comment: "Button title to proceed"),
+                action: completion
             )
-            alert.addButton(withTitle: NSLocalizedString("Continue", comment: "Button title to proceed"))
-            alert.addButton(withTitle: NSLocalizedString("Quit", comment: "Quit button title"))
-
-            let response = alert.runModal()
-            if response == .alertFirstButtonReturn {
-                completion()
-            } else if response == .alertSecondButtonReturn {
-                AppDelegate.shared?.quitApp()
-            }
         }
     }
 
     @objc func showManualEnableAlert() {
         DispatchQueue.main.async {
-            let alert = NSAlert()
-            alert.messageText = NSLocalizedString(
-                "Accessibility Access Required",
-                comment: "Alert title when access is disabled or denied"
-            )
-            alert.informativeText = NSLocalizedString(
-                """
-                CMD-Z requires permission in Privacy & Security Settings.
+            self.presentAlert(
+                title: NSLocalizedString(
+                    "Accessibility Access Required",
+                    comment: "Alert title when access is disabled or denied"
+                ),
+                message: NSLocalizedString(
+                    """
+                    CMD-Z requires permission in Privacy & Security Settings.
 
-                If CMD-Z is missing, add it using the “+” button below the list.
-                """,
-                comment: "Manual alert message"
+                    If CMD-Z is missing, add it using the “+” button below the list.
+                    """,
+                    comment: "Manual alert message"
+                ),
+                actionTitle: NSLocalizedString("Open Settings", comment: "Button to open System Settings"),
+                action: self.openAccessibilitySettings
             )
-            alert.addButton(withTitle: NSLocalizedString("Open Settings", comment: "Button to open System Settings"))
-            alert.addButton(withTitle: NSLocalizedString("Quit", comment: "Quit button title"))
+        }
+    }
 
-            let response = alert.runModal()
-            if response == .alertFirstButtonReturn {
-                self.openAccessibilitySettings()
-            } else if response == .alertSecondButtonReturn {
-                AppDelegate.shared?.quitApp()
-            }
+    /// Shared alert presentation for accessibility-related prompts.
+    private func presentAlert(title: String,
+                              message: String,
+                              actionTitle: String,
+                              action: @escaping () -> Void)
+    {
+        let alert = NSAlert()
+        alert.messageText = title
+        alert.informativeText = message
+        alert.addButton(withTitle: actionTitle)
+        alert.addButton(withTitle: NSLocalizedString("Quit", comment: "Quit button title"))
+
+        let response = alert.runModal()
+        if response == .alertFirstButtonReturn {
+            action()
+        } else if response == .alertSecondButtonReturn {
+            AppDelegate.shared?.quitApp()
         }
     }
 }

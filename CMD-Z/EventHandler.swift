@@ -109,14 +109,7 @@ class EventHandler {
     }
 
     func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
-        let flags = event.flags
-        let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-
-        // Only process if Command key is active and Y or Z
-        guard flags.contains(.maskCommand), keyCode == Int64(KeyCode.ansiZ) || keyCode == Int64(KeyCode.ansiY) else {
-            return Unmanaged.passUnretained(event)
-        }
-
-        return KeyboardHandler.handleCGEvent(type: type, event: event)
+        let isEnabled = AppDelegate.shared?.isRemappingEnabled ?? true
+        return KeyboardHandler.handleCGEvent(type: type, event: event, isRemappingEnabled: isEnabled)
     }
 }

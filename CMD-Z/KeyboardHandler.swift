@@ -52,30 +52,39 @@ class KeyboardHandler {
 
     /// Checks if the frontmost app is an app that uses Windows style shortcuts for Redo (CMD+Y).
     static func hasWindowsShortcut() -> Bool {
-        if let bundleId = NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
-            logger.debug("Frontmost application: \(bundleId)")
-            if bundleId.hasPrefix("com.microsoft.") {
-                return bundleId == "com.microsoft.Word" ||
-                    bundleId == "com.microsoft.Excel" ||
-                    bundleId == "com.microsoft.PowerPoint" ||
-                    bundleId == "com.microsoft.Outlook" ||
-                    bundleId == "com.microsoft.onenote.mac"
-            } else {
-                return bundleId == "org.libreoffice.script"
-            }
-        }
-        return false
+        guard let bundleId = NSWorkspace.shared.frontmostApplication?.bundleIdentifier else { return false }
+        logger.debug("Frontmost application: \(bundleId)")
+        return windowsShortcutBundleIDs.contains(bundleId)
     }
 
+    private static let windowsShortcutBundleIDs: Set<String> = [
+        "com.microsoft.Word",
+        "com.microsoft.Excel",
+        "com.microsoft.PowerPoint",
+        "com.microsoft.Outlook",
+        "com.microsoft.onenote.mac",
+        "org.libreoffice.script"
+    ]
+
     /// Handles a key event by performing remapping based on the current layout and target application.
-    static func handleCGEvent(type _: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
-        // Access isRemappingEnabled from AppDelegate (assumes AppDelegate.shared is available)
-        guard let isRemappingEnabled = AppDelegate.shared?.isRemappingEnabled, isRemappingEnabled else {
+    static func handleCGEvent(type _: CGEventType,
+                              event: CGEvent,
+                              isRemappingEnabled: Bool) -> Unmanaged<CGEvent>?
+    {
+        guard isRemappingEnabled else {
             return Unmanaged.passUnretained(event)
         }
 
         let flags = event.flags
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
+
+        // Only process if Command key is active and Y or Z
+        guard flags.contains(.maskCommand),
+              keyCode == Int64(KeyCode.ansiZ) || keyCode == Int64(KeyCode.ansiY)
+        else {
+            return Unmanaged.passUnretained(event)
+        }
+
         let allowedLayout = isAllowedKeyboardLayout()
         let windowsShortcut = hasWindowsShortcut()
 
