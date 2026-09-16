@@ -63,8 +63,4 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         EventHandler.shared.stopEventTap()
         NSApplication.shared.terminate(self)
     }
-
-    func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
-        false
-    }
 }
