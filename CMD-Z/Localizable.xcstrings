@@ -92,6 +92,9 @@
         }
       }
     },
+    "Hyper Key" : {
+      "comment" : "Menu item for toggling the Caps Lock hyper key"
+    },
     "OK" : {
       "comment" : "Alert confirmation button",
       "localizations" : {

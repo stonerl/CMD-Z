@@ -12,7 +12,15 @@ import Cocoa
 
 struct MenuConfiguration {
     let isRemappingEnabled: Bool
+    let isHyperKeyEnabled: Bool
     let isAutostartEnabled: Bool
+}
+
+struct MenuActions {
+    let toggleRemapping: Selector
+    let toggleHyperKey: Selector
+    let toggleAutostart: Selector
+    let quit: Selector
 }
 
 @MainActor
@@ -41,14 +49,10 @@ class MenuBarManager {
 
     /// Sets up the menu for the status item.
     /// - Parameters:
-    ///   - toggleRemappingAction: The selector for toggling remapping.
-    ///   - toggleAutostartAction: The selector for toggling autostart.
-    ///   - quitAction: The selector for quitting the app.
+    ///   - actions: The selectors for the menu item actions.
     ///   - target: The target object (e.g. AppDelegate) for the menu actions.
     ///   - configuration: A MenuConfiguration object containing the current remapping and autostart states.
-    func setupMenu(toggleRemappingAction: Selector,
-                   toggleAutostartAction: Selector,
-                   quitAction: Selector,
+    func setupMenu(actions: MenuActions,
                    target: AnyObject,
                    configuration: MenuConfiguration)
     {
@@ -56,16 +60,25 @@ class MenuBarManager {
 
         let toggleItem = NSMenuItem(
             title: NSLocalizedString("Enabled", comment: "Menu item for enabling or disabling remapping"),
-            action: toggleRemappingAction,
+            action: actions.toggleRemapping,
             keyEquivalent: "e"
         )
         toggleItem.target = target
         toggleItem.state = configuration.isRemappingEnabled ? .on : .off
         menu.addItem(toggleItem)
 
+        let hyperKeyItem = NSMenuItem(
+            title: NSLocalizedString("Hyper Key", comment: "Menu item for toggling the Caps Lock hyper key"),
+            action: actions.toggleHyperKey,
+            keyEquivalent: ""
+        )
+        hyperKeyItem.target = target
+        hyperKeyItem.state = configuration.isHyperKeyEnabled ? .on : .off
+        menu.addItem(hyperKeyItem)
+
         let autostartItem = NSMenuItem(
             title: NSLocalizedString("Open at Login", comment: "Menu item for toggling autostart"),
-            action: toggleAutostartAction,
+            action: actions.toggleAutostart,
             keyEquivalent: "l"
         )
         autostartItem.target = target
@@ -86,7 +99,7 @@ class MenuBarManager {
 
         let quitItem = NSMenuItem(
             title: NSLocalizedString("Quit CMD-Z", comment: "Menu item for quitting the application"),
-            action: quitAction,
+            action: actions.quit,
             keyEquivalent: "q"
         )
         quitItem.target = target

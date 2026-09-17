@@ -15,6 +15,16 @@ import ServiceManagement
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     var isRemappingEnabled = true
+    var isHyperKeyEnabled: Bool {
+        get {
+            if UserDefaults.standard.object(forKey: "isHyperKeyEnabled") == nil {
+                return true
+            }
+            return UserDefaults.standard.bool(forKey: "isHyperKeyEnabled")
+        }
+        set { UserDefaults.standard.set(newValue, forKey: "isHyperKeyEnabled") }
+    }
+
     var isAutostartEnabled: Bool {
         let status = SMAppService.mainApp.status
         return status == .enabled || status == .requiresApproval
@@ -33,15 +43,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         MenuBarManager.shared.createMenuBarItem()
         let menuConfig = MenuConfiguration(
             isRemappingEnabled: isRemappingEnabled,
+            isHyperKeyEnabled: isHyperKeyEnabled,
             isAutostartEnabled: isAutostartEnabled
         )
         MenuBarManager.shared.setupMenu(
-            toggleRemappingAction: #selector(toggleRemapping),
-            toggleAutostartAction: #selector(toggleAutostart),
-            quitAction: #selector(quitApp),
+            actions: MenuActions(
+                toggleRemapping: #selector(toggleRemapping),
+                toggleHyperKey: #selector(toggleHyperKey),
+                toggleAutostart: #selector(toggleAutostart),
+                quit: #selector(quitApp)
+            ),
             target: self,
             configuration: menuConfig
         )
+
+        // Apply the Caps Lock -> F18 remap before starting the event tap
+        CapsLockRemapper.setEnabled(isHyperKeyEnabled)
 
         // Start the key event tap using EventHandler
         EventHandler.shared.startEventTap()
@@ -53,6 +70,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         MenuBarManager.shared.updateAppearance(isEnabled: isRemappingEnabled)
     }
 
+    @objc func toggleHyperKey(_ sender: NSMenuItem) {
+        isHyperKeyEnabled.toggle()
+        sender.state = isHyperKeyEnabled ? .on : .off
+        CapsLockRemapper.setEnabled(isHyperKeyEnabled)
+    }
+
     @objc func toggleAutostart(_ sender: NSMenuItem) {
         let newValue = !isAutostartEnabled
         AutostartManager.shared.enableAutostart(newValue)
@@ -61,6 +84,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func quitApp() {
         EventHandler.shared.stopEventTap()
+        CapsLockRemapper.clearBlocking()
         NSApplication.shared.terminate(self)
+    }
+
+    func applicationWillTerminate(_: Notification) {
+        CapsLockRemapper.clearBlocking()
     }
 }

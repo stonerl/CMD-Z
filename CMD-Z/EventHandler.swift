@@ -175,7 +175,22 @@ class EventHandler {
     }
 
     func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
+        if CapsLockHandler.isHyperKeyEvent(event) {
+            let isHyperEnabled = AppDelegate.shared?.isHyperKeyEnabled ?? false
+            return CapsLockHandler.shared.handle(type: type, event: event, isEnabled: isHyperEnabled)
+        }
+
+        if CapsLockHandler.shared.isActive, type == .keyDown {
+            CapsLockHandler.shared.noteOtherKeyPressed()
+        }
+
         let isEnabled = AppDelegate.shared?.isRemappingEnabled ?? true
-        return KeyboardHandler.handleCGEvent(type: type, event: event, isRemappingEnabled: isEnabled)
+        let result = KeyboardHandler.handleCGEvent(type: type, event: event, isRemappingEnabled: isEnabled)
+
+        if CapsLockHandler.shared.isActive, type == .keyDown || type == .keyUp {
+            event.flags.formUnion(CapsLockHandler.hyperModifiers)
+        }
+
+        return result
     }
 }
