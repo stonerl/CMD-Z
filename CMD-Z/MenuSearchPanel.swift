@@ -27,6 +27,7 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
     let window: KeyablePanel
 
     private let searchField = NSTextField()
+    private let appIconView = NSImageView()
     private let tableView = NSTableView()
     private let scrollView = NSScrollView()
 
@@ -74,6 +75,8 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
         searchField.placeholderString = "Search menu items…"
         searchField.delegate = self
 
+        appIconView.imageScaling = .scaleProportionallyDown
+
         let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("result"))
         column.resizingMask = .autoresizingMask
         tableView.addTableColumn(column)
@@ -92,14 +95,21 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
         scrollView.autohidesScrollers = true
 
         visualEffect.addSubview(searchField)
+        visualEffect.addSubview(appIconView)
         visualEffect.addSubview(scrollView)
 
         searchField.translatesAutoresizingMaskIntoConstraints = false
+        appIconView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
+            appIconView.leadingAnchor.constraint(equalTo: visualEffect.leadingAnchor, constant: 20),
+            appIconView.centerYAnchor.constraint(equalTo: searchField.centerYAnchor),
+            appIconView.widthAnchor.constraint(equalToConstant: 18),
+            appIconView.heightAnchor.constraint(equalToConstant: 18),
+
             searchField.topAnchor.constraint(equalTo: visualEffect.topAnchor, constant: 18),
-            searchField.leadingAnchor.constraint(equalTo: visualEffect.leadingAnchor, constant: 20),
+            searchField.leadingAnchor.constraint(equalTo: appIconView.trailingAnchor, constant: 8),
             searchField.trailingAnchor.constraint(equalTo: visualEffect.trailingAnchor, constant: -20),
 
             scrollView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 12),
@@ -130,8 +140,9 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
         window.isVisible
     }
 
-    func show() {
+    func show(appIcon: NSImage?) {
         center()
+        appIconView.image = appIcon
         NSApp.activate(ignoringOtherApps: true)
         window.orderFrontRegardless()
         window.makeKey()

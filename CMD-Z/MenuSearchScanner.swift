@@ -35,16 +35,28 @@ struct MenuShortcut: Sendable, Equatable {
     }
 }
 
+/// The kind of mark a menu uses, inferred from its items' mark characters.
+enum MenuMarkKind: Sendable, Equatable {
+    case none
+    case check
+    case radio
+}
+
 /// A single searchable menu item, represented as Sendable value types so it can cross actors.
 struct MenuEntry: Sendable, Equatable {
     let title: String
     let path: [String]
     let shortcut: MenuShortcut?
     let mark: String?
+    let markKind: MenuMarkKind
     let enabled: Bool
 
     var displayPath: String {
         path.joined(separator: " > ")
+    }
+
+    var pathKey: String {
+        path.joined(separator: "\u{1}")
     }
 }
 
@@ -114,7 +126,10 @@ enum MenuSearchScanner {
     {
         guard Date() < deadline else { return }
 
-        for child in flattenedChildren(of: element) {
+        let children = flattenedChildren(of: element)
+        let kind = markKind(in: children)
+
+        for child in children {
             guard Date() < deadline else { return }
             AXUIElementSetMessagingTimeout(child, sweepTimeout)
 
@@ -128,6 +143,7 @@ enum MenuSearchScanner {
                         path: path + [title],
                         shortcut: shortcut(for: child),
                         mark: mark(for: child),
+                        markKind: kind,
                         enabled: bool(child, kAXEnabledAttribute) ?? true
                     ))
                 }
@@ -167,6 +183,26 @@ enum MenuSearchScanner {
             return nil
         }
         return mark
+    }
+
+    private static func markKind(in elements: [AXUIElement]) -> MenuMarkKind {
+        var hasCheck = false
+        var hasRadio = false
+        for element in elements {
+            guard let mark = mark(for: element) else { continue }
+            if mark == "•" {
+                hasRadio = true
+            } else if mark == "✓" || mark == "–" {
+                hasCheck = true
+            }
+        }
+        if hasRadio {
+            return .radio
+        }
+        if hasCheck {
+            return .check
+        }
+        return .none
     }
 
     // MARK: - AX primitives
