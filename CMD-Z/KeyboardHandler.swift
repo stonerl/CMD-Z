@@ -38,12 +38,14 @@ class KeyboardHandler {
             "com.apple.keylayout.ABC-QWERTZ",
             "com.apple.keylayout.Albanian",
             "com.apple.keylayout.Austrian",
+            "com.apple.keylayout.Croatian",
             "com.apple.keylayout.Croatian-PC",
             "com.apple.keylayout.Czech",
             "com.apple.keylayout.German",
             "com.apple.keylayout.German-DIN-2137",
             "com.apple.keylayout.Hungarian",
             "com.apple.keylayout.Slovak",
+            "com.apple.keylayout.Slovenian-QWERTZ",
             "com.apple.keylayout.SwissFrench",
             "com.apple.keylayout.SwissGerman"
         ]
