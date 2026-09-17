@@ -9,22 +9,24 @@
 //
 
 import ApplicationServices
+import Carbon
 import Cocoa
 
 /// The key equivalent of a menu item, kept raw enough to match against a real key event.
 struct MenuShortcut: Sendable, Equatable {
-    let display: String
     let keyChar: String
     let modifiers: Int
+    let symbolName: String?
 
-    /// Carbon `MenuCommandModifiers` bits: 1=⇧, 2=⌥, 4=⌃, 8=no-⌘.
+    /// Carbon `MenuCommandModifiers` bits: 1=⇧, 2=⌥, 4=⌃, 8=no-⌘, 0x10=fn.
     func matches(_ event: NSEvent) -> Bool {
         let flags = event.modifierFlags
         let wantsCommand = (modifiers & 8) == 0
         guard flags.contains(.command) == wantsCommand,
               flags.contains(.shift) == ((modifiers & 1) != 0),
               flags.contains(.option) == ((modifiers & 2) != 0),
-              flags.contains(.control) == ((modifiers & 4) != 0)
+              flags.contains(.control) == ((modifiers & 4) != 0),
+              flags.contains(.function) == ((modifiers & 0x10) != 0)
         else {
             return false
         }
@@ -40,6 +42,15 @@ enum MenuMarkKind: Sendable, Equatable {
     case none
     case check
     case radio
+}
+
+/// Character values the Accessibility API uses for menu item marks and key glyphs.
+enum AXGlyph {
+    static let globe = "\u{1F310}" // globe / function key
+    static let microphone = "\u{1F3A4}" // dictation key
+    static let checkmark = "\u{2713}" // ✓
+    static let radio = "\u{2022}" // •
+    static let mixed = "\u{2013}" // –
 }
 
 /// A single searchable menu item, represented as Sendable value types so it can cross actors.
@@ -160,22 +171,38 @@ enum MenuSearchScanner {
             return nil
         }
         let modifiers = (attribute(element, kAXMenuItemCmdModifiersAttribute) as? NSNumber)?.intValue ?? 0
+        let virtualKey = (attribute(element, kAXMenuItemCmdVirtualKeyAttribute) as? NSNumber)?.intValue
+        return MenuShortcut(
+            keyChar: char,
+            modifiers: modifiers,
+            symbolName: symbolName(forChar: char, virtualKey: virtualKey)
+        )
+    }
 
-        var display = ""
-        if modifiers & 8 == 0 {
-            display += "⌘"
+    private static func symbolName(forChar char: String, virtualKey: Int?) -> String? {
+        if char == AXGlyph.globe {
+            return "globe"
         }
-        if modifiers & 1 != 0 {
-            display += "⇧"
+        if char == AXGlyph.microphone {
+            return "mic"
         }
-        if modifiers & 2 != 0 {
-            display += "⌥"
+
+        guard let virtualKey else {
+            return nil
         }
-        if modifiers & 4 != 0 {
-            display += "⌃"
+        if virtualKey == kVK_UpArrow {
+            return "arrowtriangle.up.fill"
         }
-        display += char.uppercased()
-        return MenuShortcut(display: display, keyChar: char, modifiers: modifiers)
+        if virtualKey == kVK_DownArrow {
+            return "arrowtriangle.down.fill"
+        }
+        if virtualKey == kVK_LeftArrow {
+            return "arrowtriangle.left.fill"
+        }
+        if virtualKey == kVK_RightArrow {
+            return "arrowtriangle.right.fill"
+        }
+        return nil
     }
 
     private static func mark(for element: AXUIElement) -> String? {
@@ -190,9 +217,9 @@ enum MenuSearchScanner {
         var hasRadio = false
         for element in elements {
             guard let mark = mark(for: element) else { continue }
-            if mark == "•" {
+            if mark == AXGlyph.radio {
                 hasRadio = true
-            } else if mark == "✓" || mark == "–" {
+            } else if mark == AXGlyph.checkmark || mark == AXGlyph.mixed {
                 hasCheck = true
             }
         }

@@ -97,9 +97,9 @@ final class MenuSearchController {
         case .none:
             break
         case .check:
-            markOverrides[entry.pathKey] = entry.mark == "✓" ? "" : "✓"
+            markOverrides[entry.pathKey] = entry.mark == AXGlyph.checkmark ? "" : AXGlyph.checkmark
         case .radio:
-            markOverrides[entry.pathKey] = "•"
+            markOverrides[entry.pathKey] = AXGlyph.radio
         }
     }
 
