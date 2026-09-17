@@ -96,6 +96,7 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
         tableView.addTableColumn(column)
         tableView.headerView = nil
         tableView.rowHeight = 48
+        tableView.usesAutomaticRowHeights = true
         tableView.backgroundColor = .clear
         tableView.dataSource = self
         tableView.delegate = self

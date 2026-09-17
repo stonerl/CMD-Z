@@ -57,6 +57,7 @@ final class MenuCellView: NSTableCellView {
             pathLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             pathLabel.trailingAnchor.constraint(lessThanOrEqualTo: shortcutLabel.leadingAnchor, constant: -8),
             pathLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 1),
+            pathLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6),
 
             shortcutLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
             shortcutLabel.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor)
