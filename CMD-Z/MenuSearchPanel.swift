@@ -211,10 +211,20 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
         if query.isEmpty {
             filteredEntries = allEntries
         } else {
-            filteredEntries = allEntries.filter {
-                $0.title.localizedCaseInsensitiveContains(query) ||
-                    $0.displayPath.localizedCaseInsensitiveContains(query)
+            let scored = allEntries.enumerated().compactMap { index, entry -> ScoredEntry? in
+                guard let score = FuzzyMatcher.score(query: query, title: entry.title, path: entry.displayPath) else {
+                    return nil
+                }
+                return ScoredEntry(index: index, score: score, entry: entry)
             }
+            filteredEntries = scored
+                .sorted { lhs, rhs in
+                    if lhs.score == rhs.score {
+                        return lhs.index < rhs.index
+                    }
+                    return lhs.score > rhs.score
+                }
+                .map(\.entry)
         }
         tableView.reloadData()
         if !filteredEntries.isEmpty {
@@ -360,4 +370,10 @@ private final class MenuCellView: NSTableCellView {
         shortcutLabel.stringValue = entry.shortcut?.display ?? ""
         titleLabel.textColor = entry.enabled ? .labelColor : .secondaryLabelColor
     }
+}
+
+private struct ScoredEntry {
+    let index: Int
+    let score: Double
+    let entry: MenuEntry
 }
