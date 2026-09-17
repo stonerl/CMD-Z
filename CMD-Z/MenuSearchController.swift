@@ -20,6 +20,10 @@ final class MenuSearchController {
     private var menuObserver: MenuOpenObserver?
     private var observedPID: pid_t?
     private var overlayMonitor: Task<Void, Never>?
+    private var recentPaths: [String] = []
+
+    private static let recentLimit = 8
+    private static let recentKey = "recentMenuPaths"
 
     private init() {
         panel.onSelect = { [weak self] entry in
@@ -32,6 +36,7 @@ final class MenuSearchController {
         panel.onExternalDismiss = { [weak self] in
             self?.dismiss()
         }
+        recentPaths = UserDefaults.standard.stringArray(forKey: Self.recentKey) ?? []
     }
 
     var isVisible: Bool {
@@ -67,7 +72,7 @@ final class MenuSearchController {
             let entries = MenuSearchScanner.entries(for: pidValue)
             await MainActor.run { [weak self] in
                 guard let self else { return }
-                panel.setEntries(applyOverrides(to: entries))
+                panel.setEntries(applyOverrides(to: entries), recentPaths: recentPaths)
             }
         }
     }
@@ -82,6 +87,7 @@ final class MenuSearchController {
             return
         }
         let path = entry.path
+        recordRecent(entry)
         recordOverride(for: entry)
         panel.hide()
         frontmostPID = nil
@@ -90,6 +96,15 @@ final class MenuSearchController {
         Task.detached {
             _ = MenuSearchScanner.trigger(path: path, pid: pidValue)
         }
+    }
+
+    private func recordRecent(_ entry: MenuEntry) {
+        recentPaths.removeAll { $0 == entry.pathKey }
+        recentPaths.insert(entry.pathKey, at: 0)
+        if recentPaths.count > Self.recentLimit {
+            recentPaths = Array(recentPaths.prefix(Self.recentLimit))
+        }
+        UserDefaults.standard.set(recentPaths, forKey: Self.recentKey)
     }
 
     private func recordOverride(for entry: MenuEntry) {

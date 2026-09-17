@@ -33,6 +33,7 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
 
     private var allEntries: [MenuEntry] = []
     private var filteredEntries: [MenuEntry] = []
+    private var recentPaths: [String] = []
     private var shortcutMonitor: Any?
 
     var onSelect: ((MenuEntry) -> Void)?
@@ -216,15 +217,20 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
 
     // MARK: - Data
 
-    func setEntries(_ entries: [MenuEntry]) {
+    func setEntries(_ entries: [MenuEntry], recentPaths: [String]) {
         allEntries = entries
+        self.recentPaths = recentPaths
         applyFilter()
     }
 
     private func applyFilter() {
         let query = searchField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
         if query.isEmpty {
-            filteredEntries = allEntries
+            let recent = recentPaths.compactMap { key in
+                allEntries.first { $0.pathKey == key }
+            }
+            let recentKeys = Set(recent.map(\.pathKey))
+            filteredEntries = recent + allEntries.filter { !recentKeys.contains($0.pathKey) }
         } else {
             let scored = allEntries.enumerated().compactMap { index, entry -> ScoredEntry? in
                 guard let score = FuzzyMatcher.score(query: query, title: entry.title, path: entry.displayPath) else {
