@@ -8,7 +8,6 @@
 //  Copyright (c) 2026 Toni Förster
 //
 
-import ApplicationServices
 import Carbon
 import Cocoa
 
@@ -19,16 +18,34 @@ final class MacroHandler {
     /// Marks synthetic events so the event tap passes them through untouched.
     static let syntheticTag: Int64 = 0x434D_445A
 
+    /// Tracks whether the clipboard view was opened by this handler, to support toggle-close.
+    private var clipboardOpenedByUs = false
+
     /// Opens Spotlight using the user's actual shortcut, then the clipboard manager (Cmd+4).
     func triggerClipboardManager() {
         let shortcut = Self.spotlightShortcut() ?? (CGKeyCode(kVK_Space), CGEventFlags.maskCommand)
-        postKey(shortcut.keyCode, keyDown: true, flags: shortcut.flags)
-        postKey(shortcut.keyCode, keyDown: false, flags: shortcut.flags)
+        let isOpen = Self.isSpotlightVisible()
+
+        // Already showing the clipboard view we opened -> toggle Siri AI closed.
+        if isOpen, clipboardOpenedByUs {
+            postKey(shortcut.keyCode, keyDown: true, flags: shortcut.flags)
+            postKey(shortcut.keyCode, keyDown: false, flags: shortcut.flags)
+            clipboardOpenedByUs = false
+            return
+        }
+
+        if !isOpen {
+            postKey(shortcut.keyCode, keyDown: true, flags: shortcut.flags)
+            postKey(shortcut.keyCode, keyDown: false, flags: shortcut.flags)
+        }
 
         Task { @MainActor [weak self] in
-            await self?.waitForSpotlight()
+            if !isOpen {
+                await self?.waitForSpotlight()
+            }
             self?.postKey(CGKeyCode(kVK_ANSI_4), keyDown: true, flags: .maskCommand)
             self?.postKey(CGKeyCode(kVK_ANSI_4), keyDown: false, flags: .maskCommand)
+            self?.clipboardOpenedByUs = true
         }
     }
 
@@ -77,22 +94,24 @@ final class MacroHandler {
         }
     }
 
-    /// Returns true if the Spotlight process has a visible window.
+    /// Returns true if Spotlight's UI (Siri AI) has a visible overlay window.
     private static func isSpotlightVisible() -> Bool {
-        let pid = NSWorkspace.shared.runningApplications
-            .first { $0.bundleIdentifier == "com.apple.Spotlight" }?
+        guard let pid = NSWorkspace.shared.runningApplications
+            .first(where: { $0.bundleIdentifier == "com.apple.campo" })?
             .processIdentifier
-        guard let pid else {
+        else {
             return false
         }
 
-        let app = AXUIElementCreateApplication(pid)
-        var windowsRef: CFTypeRef?
-        let status = AXUIElementCopyAttributeValue(app, kAXWindowsAttribute as CFString, &windowsRef)
-        guard status == .success, let windows = windowsRef as? [AXUIElement] else {
+        let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
+        guard let windows = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else {
             return false
         }
-        return !windows.isEmpty
+        return windows.contains { window in
+            guard (window[kCGWindowOwnerPID as String] as? Int) == Int(pid) else { return false }
+            let layer = window[kCGWindowLayer as String] as? Int ?? 0
+            return layer > 0
+        }
     }
 
     private func postKey(_ keyCode: CGKeyCode, keyDown: Bool, flags: CGEventFlags) {
