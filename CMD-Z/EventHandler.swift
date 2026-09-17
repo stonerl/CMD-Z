@@ -8,6 +8,7 @@
 //  Copyright (c) 2025 Toni Förster
 //
 
+import Carbon
 import Cocoa
 import OSLog
 
@@ -175,19 +176,32 @@ class EventHandler {
     }
 
     func handleCGEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
+        if event.getIntegerValueField(.eventSourceUserData) == MacroHandler.syntheticTag {
+            return Unmanaged.passUnretained(event)
+        }
+
         if CapsLockHandler.isHyperKeyEvent(event) {
             let isHyperEnabled = AppDelegate.shared?.isHyperKeyEnabled ?? false
             return CapsLockHandler.shared.handle(type: type, event: event, isEnabled: isHyperEnabled)
         }
 
-        if CapsLockHandler.shared.isActive, type == .keyDown {
+        let isHyperActive = CapsLockHandler.shared.isActive
+
+        if isHyperActive, type == .keyDown {
             CapsLockHandler.shared.noteOtherKeyPressed()
+        }
+
+        if isHyperActive, event.getIntegerValueField(.keyboardEventKeycode) == Int64(kVK_ANSI_V) {
+            if type == .keyDown {
+                MacroHandler.shared.triggerClipboardManager()
+            }
+            return nil
         }
 
         let isEnabled = AppDelegate.shared?.isRemappingEnabled ?? true
         let result = KeyboardHandler.handleCGEvent(type: type, event: event, isRemappingEnabled: isEnabled)
 
-        if CapsLockHandler.shared.isActive, type == .keyDown || type == .keyUp {
+        if isHyperActive, type == .keyDown || type == .keyUp {
             event.flags.formUnion(CapsLockHandler.hyperModifiers)
         }
 
