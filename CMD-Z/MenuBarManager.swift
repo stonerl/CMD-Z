@@ -13,12 +13,14 @@ import Cocoa
 struct MenuConfiguration {
     let isRemappingEnabled: Bool
     let isHyperKeyEnabled: Bool
+    let isClipboardMacroEnabled: Bool
     let isAutostartEnabled: Bool
 }
 
 struct MenuActions {
     let toggleRemapping: Selector
     let toggleHyperKey: Selector
+    let toggleClipboardMacro: Selector
     let toggleAutostart: Selector
     let quit: Selector
 }
@@ -59,7 +61,7 @@ class MenuBarManager {
         let menu = NSMenu()
 
         let toggleItem = NSMenuItem(
-            title: NSLocalizedString("Enabled", comment: "Menu item for enabling or disabling remapping"),
+            title: NSLocalizedString("Remapping", comment: "Menu item for toggling Cmd-Z remapping"),
             action: actions.toggleRemapping,
             keyEquivalent: "e"
         )
@@ -75,6 +77,15 @@ class MenuBarManager {
         hyperKeyItem.target = target
         hyperKeyItem.state = configuration.isHyperKeyEnabled ? .on : .off
         menu.addItem(hyperKeyItem)
+
+        let clipboardMacroItem = NSMenuItem(
+            title: NSLocalizedString("Clipboard", comment: "Menu item for toggling the clipboard macro"),
+            action: actions.toggleClipboardMacro,
+            keyEquivalent: ""
+        )
+        clipboardMacroItem.target = target
+        clipboardMacroItem.state = configuration.isClipboardMacroEnabled ? .on : .off
+        menu.addItem(clipboardMacroItem)
 
         let autostartItem = NSMenuItem(
             title: NSLocalizedString("Open at Login", comment: "Menu item for toggling autostart"),

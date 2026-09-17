@@ -25,6 +25,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         set { UserDefaults.standard.set(newValue, forKey: "isHyperKeyEnabled") }
     }
 
+    var isClipboardMacroEnabled: Bool {
+        get {
+            if UserDefaults.standard.object(forKey: "isClipboardMacroEnabled") == nil {
+                return true
+            }
+            return UserDefaults.standard.bool(forKey: "isClipboardMacroEnabled")
+        }
+        set { UserDefaults.standard.set(newValue, forKey: "isClipboardMacroEnabled") }
+    }
+
     var isAutostartEnabled: Bool {
         let status = SMAppService.mainApp.status
         return status == .enabled || status == .requiresApproval
@@ -44,12 +54,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let menuConfig = MenuConfiguration(
             isRemappingEnabled: isRemappingEnabled,
             isHyperKeyEnabled: isHyperKeyEnabled,
+            isClipboardMacroEnabled: isClipboardMacroEnabled,
             isAutostartEnabled: isAutostartEnabled
         )
         MenuBarManager.shared.setupMenu(
             actions: MenuActions(
                 toggleRemapping: #selector(toggleRemapping),
                 toggleHyperKey: #selector(toggleHyperKey),
+                toggleClipboardMacro: #selector(toggleClipboardMacro),
                 toggleAutostart: #selector(toggleAutostart),
                 quit: #selector(quitApp)
             ),
@@ -74,6 +86,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         isHyperKeyEnabled.toggle()
         sender.state = isHyperKeyEnabled ? .on : .off
         CapsLockRemapper.setEnabled(isHyperKeyEnabled)
+    }
+
+    @objc func toggleClipboardMacro(_ sender: NSMenuItem) {
+        isClipboardMacroEnabled.toggle()
+        sender.state = isClipboardMacroEnabled ? .on : .off
     }
 
     @objc func toggleAutostart(_ sender: NSMenuItem) {

@@ -12,6 +12,9 @@
         }
       }
     },
+    "Clipboard" : {
+      "comment" : "Menu item for toggling the clipboard macro"
+    },
     "CMD-Z could not start. Please restart the app." : {
       "comment" : "Alert message when the event tap fails to start"
     },
@@ -48,17 +51,6 @@
         }
       }
     },
-    "Enabled" : {
-      "comment" : "Menu item for enabling or disabling remapping",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktiviert"
-          }
-        }
-      }
-    },
     "Error" : {
       "comment" : "Alert title for errors",
       "localizations" : {
@@ -77,17 +69,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fehler beim Aktualisieren der Einstellung „Beim Anmelden öffnen“: %@"
-          }
-        }
-      }
-    },
-    "Get Help" : {
-      "comment" : "Menu item for getting help",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hilfe erhalten"
           }
         }
       }
@@ -149,6 +130,9 @@
           }
         }
       }
+    },
+    "Remapping" : {
+      "comment" : "Menu item for toggling Cmd-Z remapping"
     }
   },
   "version" : "1.0"

@@ -192,10 +192,12 @@ class EventHandler {
         }
 
         if isHyperActive, event.getIntegerValueField(.keyboardEventKeycode) == Int64(kVK_ANSI_V) {
-            if type == .keyDown {
-                MacroHandler.shared.triggerClipboardManager()
+            if AppDelegate.shared?.isClipboardMacroEnabled ?? false {
+                if type == .keyDown {
+                    MacroHandler.shared.triggerClipboardManager()
+                }
+                return nil
             }
-            return nil
         }
 
         let isEnabled = AppDelegate.shared?.isRemappingEnabled ?? true
