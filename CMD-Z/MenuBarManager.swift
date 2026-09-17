@@ -86,7 +86,7 @@ class MenuBarManager {
         menu.addItem(toggleItem(
             title: "Menu Search",
             action: actions.toggleMenuSearch,
-            keyEquivalent: "",
+            keyEquivalent: "s",
             target: target,
             isOn: configuration.isMenuSearchEnabled
         ))
