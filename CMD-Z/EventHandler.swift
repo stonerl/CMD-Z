@@ -193,7 +193,7 @@ class EventHandler {
 
         if isHyperActive, event.getIntegerValueField(.keyboardEventKeycode) == Int64(kVK_ANSI_V) {
             if AppDelegate.shared?.isClipboardMacroEnabled ?? false {
-                if type == .keyDown {
+                if type == .keyDown, event.getIntegerValueField(.keyboardEventAutorepeat) == 0 {
                     MacroHandler.shared.triggerClipboardManager()
                 }
                 return nil
@@ -201,7 +201,10 @@ class EventHandler {
         }
 
         if isHyperActive, event.getIntegerValueField(.keyboardEventKeycode) == Int64(kVK_Escape) {
-            if type == .keyDown, AppDelegate.shared?.isMenuSearchEnabled ?? false {
+            if type == .keyDown,
+               event.getIntegerValueField(.keyboardEventAutorepeat) == 0,
+               AppDelegate.shared?.isMenuSearchEnabled ?? false
+            {
                 MenuSearchController.shared.toggle()
             }
             return nil
