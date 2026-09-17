@@ -43,7 +43,7 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
 
     override init() {
         window = KeyablePanel(
-            contentRect: NSRect(x: 0, y: 0, width: 520, height: 420),
+            contentRect: NSRect(x: 0, y: 0, width: 520, height: 410),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
