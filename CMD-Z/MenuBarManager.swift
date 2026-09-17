@@ -72,7 +72,7 @@ class MenuBarManager {
         let hyperKeyItem = NSMenuItem(
             title: NSLocalizedString("Hyper Key", comment: "Menu item for toggling the Caps Lock hyper key"),
             action: actions.toggleHyperKey,
-            keyEquivalent: ""
+            keyEquivalent: "h"
         )
         hyperKeyItem.target = target
         hyperKeyItem.state = configuration.isHyperKeyEnabled ? .on : .off
@@ -81,7 +81,7 @@ class MenuBarManager {
         let clipboardMacroItem = NSMenuItem(
             title: NSLocalizedString("Clipboard", comment: "Menu item for toggling the clipboard macro"),
             action: actions.toggleClipboardMacro,
-            keyEquivalent: ""
+            keyEquivalent: "c"
         )
         clipboardMacroItem.target = target
         clipboardMacroItem.state = configuration.isClipboardMacroEnabled ? .on : .off
