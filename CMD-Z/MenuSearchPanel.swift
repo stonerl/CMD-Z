@@ -37,6 +37,9 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
 
     var onSelect: ((MenuEntry) -> Void)?
     var onHide: (() -> Void)?
+    var onExternalDismiss: (() -> Void)?
+
+    private var resignKeyObserver: NSObjectProtocol?
 
     override init() {
         window = KeyablePanel(
@@ -58,6 +61,17 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
         window.level = .floating
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         window.hidesOnDeactivate = true
+
+        resignKeyObserver = NotificationCenter.default.addObserver(
+            forName: NSWindow.didResignKeyNotification,
+            object: window,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.window.isVisible else { return }
+                self.onExternalDismiss?()
+            }
+        }
     }
 
     private func configureContent() {

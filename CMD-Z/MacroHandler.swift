@@ -95,7 +95,7 @@ final class MacroHandler {
     }
 
     /// Returns true if Spotlight's UI (Siri AI) has a visible overlay window.
-    private static func isSpotlightVisible() -> Bool {
+    nonisolated static func isSpotlightVisible() -> Bool {
         guard let pid = NSWorkspace.shared.runningApplications
             .first(where: { $0.bundleIdentifier == "com.apple.campo" })?
             .processIdentifier

@@ -19,13 +19,18 @@ final class MenuSearchController {
     private var markOverrides: [String: String] = [:]
     private var menuObserver: MenuOpenObserver?
     private var observedPID: pid_t?
+    private var overlayMonitor: Task<Void, Never>?
 
     private init() {
         panel.onSelect = { [weak self] entry in
             self?.trigger(entry)
         }
         panel.onHide = { [weak self] in
+            self?.stopOverlayMonitor()
             self?.restoreFocus()
+        }
+        panel.onExternalDismiss = { [weak self] in
+            self?.dismiss()
         }
     }
 
@@ -47,6 +52,7 @@ final class MenuSearchController {
         }
         frontmostPID = pid
         panel.show(appIcon: NSRunningApplication(processIdentifier: pid)?.icon)
+        startOverlayMonitor()
 
         if pid != observedPID {
             markOverrides.removeAll()
@@ -118,5 +124,36 @@ final class MenuSearchController {
             return
         }
         NSRunningApplication(processIdentifier: pid)?.activate()
+    }
+
+    func dismiss() {
+        guard panel.isVisible else { return }
+        frontmostPID = nil
+        panel.hide()
+    }
+
+    private func startOverlayMonitor() {
+        overlayMonitor?.cancel()
+        overlayMonitor = Task.detached { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 200_000_000)
+                if Task.isCancelled {
+                    return
+                }
+                let visible = await MainActor.run { self?.panel.isVisible ?? false }
+                if !visible {
+                    return
+                }
+                if MacroHandler.isSpotlightVisible() {
+                    await MainActor.run { self?.dismiss() }
+                    return
+                }
+            }
+        }
+    }
+
+    private func stopOverlayMonitor() {
+        overlayMonitor?.cancel()
+        overlayMonitor = nil
     }
 }
