@@ -12,9 +12,6 @@
         }
       }
     },
-    "Clipboard" : {
-      "comment" : "Menu item for toggling the clipboard macro"
-    },
     "CMD-Z could not start. Please restart the app." : {
       "comment" : "Alert message when the event tap fails to start"
     },
@@ -73,9 +70,6 @@
         }
       }
     },
-    "Hyper Key" : {
-      "comment" : "Menu item for toggling the Caps Lock hyper key"
-    },
     "OK" : {
       "comment" : "Alert confirmation button",
       "localizations" : {
@@ -89,6 +83,7 @@
     },
     "Open at Login" : {
       "comment" : "Menu item for toggling autostart",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -130,9 +125,6 @@
           }
         }
       }
-    },
-    "Remapping" : {
-      "comment" : "Menu item for toggling Cmd-Z remapping"
     }
   },
   "version" : "1.0"

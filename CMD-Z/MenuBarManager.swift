@@ -14,6 +14,7 @@ struct MenuConfiguration {
     let isRemappingEnabled: Bool
     let isHyperKeyEnabled: Bool
     let isClipboardMacroEnabled: Bool
+    let isMenuSearchEnabled: Bool
     let isAutostartEnabled: Bool
 }
 
@@ -21,6 +22,7 @@ struct MenuActions {
     let toggleRemapping: Selector
     let toggleHyperKey: Selector
     let toggleClipboardMacro: Selector
+    let toggleMenuSearch: Selector
     let toggleAutostart: Selector
     let quit: Selector
 }
@@ -60,43 +62,44 @@ class MenuBarManager {
     {
         let menu = NSMenu()
 
-        let toggleItem = NSMenuItem(
-            title: NSLocalizedString("Remapping", comment: "Menu item for toggling Cmd-Z remapping"),
+        menu.addItem(toggleItem(
+            title: "Remapping",
             action: actions.toggleRemapping,
-            keyEquivalent: "e"
-        )
-        toggleItem.target = target
-        toggleItem.state = configuration.isRemappingEnabled ? .on : .off
-        menu.addItem(toggleItem)
-
-        let hyperKeyItem = NSMenuItem(
-            title: NSLocalizedString("Hyper Key", comment: "Menu item for toggling the Caps Lock hyper key"),
+            keyEquivalent: "e",
+            target: target,
+            isOn: configuration.isRemappingEnabled
+        ))
+        menu.addItem(toggleItem(
+            title: "Hyper Key",
             action: actions.toggleHyperKey,
-            keyEquivalent: "h"
-        )
-        hyperKeyItem.target = target
-        hyperKeyItem.state = configuration.isHyperKeyEnabled ? .on : .off
-        menu.addItem(hyperKeyItem)
-
-        let clipboardMacroItem = NSMenuItem(
-            title: NSLocalizedString("Clipboard", comment: "Menu item for toggling the clipboard macro"),
+            keyEquivalent: "h",
+            target: target,
+            isOn: configuration.isHyperKeyEnabled
+        ))
+        menu.addItem(toggleItem(
+            title: "Clipboard",
             action: actions.toggleClipboardMacro,
-            keyEquivalent: "c"
-        )
-        clipboardMacroItem.target = target
-        clipboardMacroItem.state = configuration.isClipboardMacroEnabled ? .on : .off
-        menu.addItem(clipboardMacroItem)
+            keyEquivalent: "c",
+            target: target,
+            isOn: configuration.isClipboardMacroEnabled
+        ))
+        menu.addItem(toggleItem(
+            title: "Menu Search",
+            action: actions.toggleMenuSearch,
+            keyEquivalent: "",
+            target: target,
+            isOn: configuration.isMenuSearchEnabled
+        ))
 
         menu.addItem(NSMenuItem.separator())
 
-        let autostartItem = NSMenuItem(
-            title: NSLocalizedString("Open at Login", comment: "Menu item for toggling autostart"),
+        menu.addItem(toggleItem(
+            title: "Open at Login",
             action: actions.toggleAutostart,
-            keyEquivalent: "l"
-        )
-        autostartItem.target = target
-        autostartItem.state = configuration.isAutostartEnabled ? .on : .off
-        menu.addItem(autostartItem)
+            keyEquivalent: "l",
+            target: target,
+            isOn: configuration.isAutostartEnabled
+        ))
 
         menu.addItem(NSMenuItem.separator())
 
@@ -110,5 +113,21 @@ class MenuBarManager {
 
         statusItem?.menu = menu
         updateAppearance(isEnabled: configuration.isRemappingEnabled)
+    }
+
+    private func toggleItem(title: String,
+                            action: Selector,
+                            keyEquivalent: String,
+                            target: AnyObject,
+                            isOn: Bool) -> NSMenuItem
+    {
+        let item = NSMenuItem(
+            title: NSLocalizedString(title, comment: title),
+            action: action,
+            keyEquivalent: keyEquivalent
+        )
+        item.target = target
+        item.state = isOn ? .on : .off
+        return item
     }
 }

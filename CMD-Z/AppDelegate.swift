@@ -35,6 +35,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         set { UserDefaults.standard.set(newValue, forKey: "isClipboardMacroEnabled") }
     }
 
+    var isMenuSearchEnabled: Bool {
+        get {
+            if UserDefaults.standard.object(forKey: "isMenuSearchEnabled") == nil {
+                return true
+            }
+            return UserDefaults.standard.bool(forKey: "isMenuSearchEnabled")
+        }
+        set { UserDefaults.standard.set(newValue, forKey: "isMenuSearchEnabled") }
+    }
+
     var isAutostartEnabled: Bool {
         let status = SMAppService.mainApp.status
         return status == .enabled || status == .requiresApproval
@@ -55,6 +65,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             isRemappingEnabled: isRemappingEnabled,
             isHyperKeyEnabled: isHyperKeyEnabled,
             isClipboardMacroEnabled: isClipboardMacroEnabled,
+            isMenuSearchEnabled: isMenuSearchEnabled,
             isAutostartEnabled: isAutostartEnabled
         )
         MenuBarManager.shared.setupMenu(
@@ -62,6 +73,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 toggleRemapping: #selector(toggleRemapping),
                 toggleHyperKey: #selector(toggleHyperKey),
                 toggleClipboardMacro: #selector(toggleClipboardMacro),
+                toggleMenuSearch: #selector(toggleMenuSearch),
                 toggleAutostart: #selector(toggleAutostart),
                 quit: #selector(quitApp)
             ),
@@ -91,6 +103,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func toggleClipboardMacro(_ sender: NSMenuItem) {
         isClipboardMacroEnabled.toggle()
         sender.state = isClipboardMacroEnabled ? .on : .off
+    }
+
+    @objc func toggleMenuSearch(_ sender: NSMenuItem) {
+        isMenuSearchEnabled.toggle()
+        sender.state = isMenuSearchEnabled ? .on : .off
     }
 
     @objc func toggleAutostart(_ sender: NSMenuItem) {

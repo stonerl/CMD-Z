@@ -200,6 +200,13 @@ class EventHandler {
             }
         }
 
+        if isHyperActive, event.getIntegerValueField(.keyboardEventKeycode) == Int64(kVK_Escape) {
+            if type == .keyDown, AppDelegate.shared?.isMenuSearchEnabled ?? false {
+                MenuSearchController.shared.toggle()
+            }
+            return nil
+        }
+
         let isEnabled = AppDelegate.shared?.isRemappingEnabled ?? true
         let result = KeyboardHandler.handleCGEvent(type: type, event: event, isRemappingEnabled: isEnabled)
 
