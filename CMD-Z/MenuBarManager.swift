@@ -87,6 +87,8 @@ class MenuBarManager {
         clipboardMacroItem.state = configuration.isClipboardMacroEnabled ? .on : .off
         menu.addItem(clipboardMacroItem)
 
+        menu.addItem(NSMenuItem.separator())
+
         let autostartItem = NSMenuItem(
             title: NSLocalizedString("Open at Login", comment: "Menu item for toggling autostart"),
             action: actions.toggleAutostart,
