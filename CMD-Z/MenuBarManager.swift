@@ -63,28 +63,28 @@ class MenuBarManager {
         let menu = NSMenu()
 
         menu.addItem(toggleItem(
-            title: "Remapping",
+            title: NSLocalizedString("Remapping", comment: "Menu item toggles remapping"),
             action: actions.toggleRemapping,
             keyEquivalent: "e",
             target: target,
             isOn: configuration.isRemappingEnabled
         ))
         menu.addItem(toggleItem(
-            title: "Hyper Key",
+            title: NSLocalizedString("Hyper Key", comment: "Menu item toggles Hyper Key"),
             action: actions.toggleHyperKey,
             keyEquivalent: "h",
             target: target,
             isOn: configuration.isHyperKeyEnabled
         ))
         menu.addItem(toggleItem(
-            title: "Clipboard",
+            title: NSLocalizedString("Clipboard", comment: "Menu item toggles clipboard macro"),
             action: actions.toggleClipboardMacro,
             keyEquivalent: "c",
             target: target,
             isOn: configuration.isClipboardMacroEnabled
         ))
         menu.addItem(toggleItem(
-            title: "Menu Search",
+            title: NSLocalizedString("Menu Search", comment: "Menu item toggles menu search"),
             action: actions.toggleMenuSearch,
             keyEquivalent: "s",
             target: target,
@@ -94,7 +94,7 @@ class MenuBarManager {
         menu.addItem(NSMenuItem.separator())
 
         menu.addItem(toggleItem(
-            title: "Open at Login",
+            title: NSLocalizedString("Open at Login", comment: "Menu item toggles launch at login"),
             action: actions.toggleAutostart,
             keyEquivalent: "l",
             target: target,
@@ -122,7 +122,7 @@ class MenuBarManager {
                             isOn: Bool) -> NSMenuItem
     {
         let item = NSMenuItem(
-            title: NSLocalizedString(title, comment: title),
+            title: title,
             action: action,
             keyEquivalent: keyEquivalent
         )

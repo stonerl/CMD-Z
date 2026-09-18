@@ -6,22 +6,33 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zugriff auf Bedienungshilfen erforderlich"
+            "state" : "needs_review",
+            "value" : "Accessibility Access Required"
           }
         }
       }
     },
+    "Clipboard" : {
+      "comment" : "Menu item toggles clipboard macro"
+    },
     "CMD-Z could not start. Please restart the app." : {
-      "comment" : "Alert message when the event tap fails to start"
+      "comment" : "Alert message when the event tap fails to start",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "CMD-Z could not start. Please restart the app."
+          }
+        }
+      }
     },
     "CMD-Z requires permission in Privacy & Security Settings.\n\nClick “Continue” to grant access when prompted." : {
       "comment" : "First-time alert message",
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "CMD-Z benötigt die Berechtigung unter „Datenschutz & Sicherheit“.\n\nKlicke auf „Fortfahren“, um den Zugriff zu erlauben, wenn du dazu aufgefordert wirst."
+            "state" : "needs_review",
+            "value" : "CMD-Z requires permission in Privacy & Security Settings.\n\nClick “Continue” to grant access when prompted."
           }
         }
       }
@@ -31,8 +42,8 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "CMD-Z benötigt die Berechtigung unter „Datenschutz & Sicherheit“.\n\nFalls CMD-Z fehlt, füge es mit dem „+“-Knopf unterhalb der Liste hinzu."
+            "state" : "needs_review",
+            "value" : "CMD-Z requires permission in Privacy & Security Settings.\n\nIf CMD-Z is missing, add it using the “+” button below the list."
           }
         }
       }
@@ -42,8 +53,8 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fortfahren"
+            "state" : "needs_review",
+            "value" : "Continue"
           }
         }
       }
@@ -53,8 +64,8 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fehler"
+            "state" : "needs_review",
+            "value" : "Error"
           }
         }
       }
@@ -64,42 +75,39 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fehler beim Aktualisieren der Einstellung „Beim Anmelden öffnen“: %@"
+            "state" : "needs_review",
+            "value" : "Failed to update Open at Login setting: %@"
           }
         }
       }
+    },
+    "Hyper Key" : {
+      "comment" : "Menu item toggles Hyper Key"
+    },
+    "Menu Search" : {
+      "comment" : "Menu item toggles menu search"
     },
     "OK" : {
       "comment" : "Alert confirmation button",
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "OK"
           }
         }
       }
     },
     "Open at Login" : {
-      "comment" : "Menu item for toggling autostart",
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Beim Anmelden öffnen"
-          }
-        }
-      }
+      "comment" : "Menu item toggles launch at login"
     },
     "Open Settings" : {
       "comment" : "Button to open System Settings",
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einstellungen öffnen"
+            "state" : "needs_review",
+            "value" : "Open Settings"
           }
         }
       }
@@ -109,8 +117,8 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Beenden"
+            "state" : "needs_review",
+            "value" : "Quit"
           }
         }
       }
@@ -120,12 +128,18 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "„CMD-Z“ Beenden"
+            "state" : "needs_review",
+            "value" : "Quit CMD-Z"
           }
         }
       }
+    },
+    "Remapping" : {
+      "comment" : "Menu item toggles remapping"
+    },
+    "Search menu items…" : {
+      "comment" : "Placeholder in the menu search field"
     }
   },
-  "version" : "1.0"
+  "version" : "1.3"
 }

@@ -23,7 +23,7 @@ final class KeyablePanel: NSPanel {
 }
 
 @MainActor
-final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegate, NSTextFieldDelegate {
+final class MenuSearchPanel: NSObject {
     let window: KeyablePanel
 
     private let searchField = NSTextField()
@@ -82,13 +82,7 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
         visualEffect.state = .active
         visualEffect.maskImage = Self.roundedMask(cornerRadius: 16)
 
-        searchField.isBezeled = false
-        searchField.drawsBackground = false
-        searchField.focusRingType = .none
-        searchField.font = NSFont.preferredFont(forTextStyle: .title2)
-        searchField.textColor = .labelColor
-        searchField.placeholderString = "Search menu items…"
-        searchField.delegate = self
+        configureSearchField()
 
         appIconView.imageScaling = .scaleProportionallyDown
 
@@ -135,6 +129,19 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
         ])
 
         window.contentView = visualEffect
+    }
+
+    private func configureSearchField() {
+        searchField.isBezeled = false
+        searchField.drawsBackground = false
+        searchField.focusRingType = .none
+        searchField.font = NSFont.preferredFont(forTextStyle: .title2)
+        searchField.textColor = .labelColor
+        searchField.placeholderString = NSLocalizedString(
+            "Search menu items…",
+            comment: "Placeholder in the menu search field"
+        )
+        searchField.delegate = self
     }
 
     private static func roundedMask(cornerRadius radius: CGFloat) -> NSImage {
@@ -254,54 +261,6 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
         }
     }
 
-    // MARK: - NSTableViewDataSource
-
-    func numberOfRows(in _: NSTableView) -> Int {
-        filteredEntries.count
-    }
-
-    // MARK: - NSTableViewDelegate
-
-    func tableView(_: NSTableView, viewFor _: NSTableColumn?, row: Int) -> NSView? {
-        let entry = filteredEntries[row]
-        let identifier = NSUserInterfaceItemIdentifier("cell")
-
-        let cell: MenuCellView
-        if let reused = tableView.makeView(withIdentifier: identifier, owner: nil) as? MenuCellView {
-            cell = reused
-        } else {
-            cell = MenuCellView()
-            cell.identifier = identifier
-        }
-        cell.configure(entry: entry)
-        return cell
-    }
-
-    // MARK: - NSTextFieldDelegate
-
-    func controlTextDidChange(_: Notification) {
-        applyFilter()
-    }
-
-    func control(_: NSControl, textView _: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-        switch commandSelector {
-        case #selector(NSResponder.moveDown(_:)):
-            moveSelection(1)
-            return true
-        case #selector(NSResponder.moveUp(_:)):
-            moveSelection(-1)
-            return true
-        case #selector(NSResponder.insertNewline(_:)):
-            triggerSelected()
-            return true
-        case #selector(NSResponder.cancelOperation(_:)):
-            hide()
-            return true
-        default:
-            return false
-        }
-    }
-
     // MARK: - Interaction
 
     @objc private func handleDoubleClick() {
@@ -324,6 +283,56 @@ final class MenuSearchPanel: NSObject, NSTableViewDataSource, NSTableViewDelegat
         let row = tableView.selectedRow
         guard row >= 0, row < filteredEntries.count else { return }
         onSelect?(filteredEntries[row])
+    }
+}
+
+// MARK: - NSTableViewDataSource / NSTableViewDelegate
+
+extension MenuSearchPanel: NSTableViewDataSource, NSTableViewDelegate {
+    func numberOfRows(in _: NSTableView) -> Int {
+        filteredEntries.count
+    }
+
+    func tableView(_: NSTableView, viewFor _: NSTableColumn?, row: Int) -> NSView? {
+        let entry = filteredEntries[row]
+        let identifier = NSUserInterfaceItemIdentifier("cell")
+
+        let cell: MenuCellView
+        if let reused = tableView.makeView(withIdentifier: identifier, owner: nil) as? MenuCellView {
+            cell = reused
+        } else {
+            cell = MenuCellView()
+            cell.identifier = identifier
+        }
+        cell.configure(entry: entry)
+        return cell
+    }
+}
+
+// MARK: - NSTextFieldDelegate
+
+extension MenuSearchPanel: NSTextFieldDelegate {
+    func controlTextDidChange(_: Notification) {
+        applyFilter()
+    }
+
+    func control(_: NSControl, textView _: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+        switch commandSelector {
+        case #selector(NSResponder.moveDown(_:)):
+            moveSelection(1)
+            return true
+        case #selector(NSResponder.moveUp(_:)):
+            moveSelection(-1)
+            return true
+        case #selector(NSResponder.insertNewline(_:)):
+            triggerSelected()
+            return true
+        case #selector(NSResponder.cancelOperation(_:)):
+            hide()
+            return true
+        default:
+            return false
+        }
     }
 }
 
