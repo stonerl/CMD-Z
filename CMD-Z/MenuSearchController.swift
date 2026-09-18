@@ -16,9 +16,6 @@ final class MenuSearchController {
 
     private let panel = MenuSearchPanel()
     private var frontmostPID: pid_t?
-    private var markOverrides: [String: String] = [:]
-    private var menuObserver: MenuOpenObserver?
-    private var observedPID: pid_t?
     private var overlayMonitor: Task<Void, Never>?
     private var recentPaths: [String] = []
 
@@ -59,20 +56,12 @@ final class MenuSearchController {
         panel.show(appIcon: NSRunningApplication(processIdentifier: pid)?.icon)
         startOverlayMonitor()
 
-        if pid != observedPID {
-            markOverrides.removeAll()
-            menuObserver = MenuOpenObserver(pid: pid) { [weak self] in
-                self?.markOverrides.removeAll()
-            }
-            observedPID = pid
-        }
-
         let pidValue = pid
         Task.detached {
             let entries = MenuSearchScanner.entries(for: pidValue)
             await MainActor.run { [weak self] in
                 guard let self else { return }
-                panel.setEntries(applyOverrides(to: entries), recentPaths: recentPaths)
+                panel.setEntries(entries, recentPaths: recentPaths)
             }
         }
     }
@@ -89,7 +78,6 @@ final class MenuSearchController {
         let path = entry.path
         let indices = entry.indices
         recordRecent(entry)
-        recordOverride(for: entry)
         panel.hide()
         frontmostPID = nil
 
@@ -106,34 +94,6 @@ final class MenuSearchController {
             recentPaths = Array(recentPaths.prefix(Self.recentLimit))
         }
         UserDefaults.standard.set(recentPaths, forKey: Self.recentKey)
-    }
-
-    private func recordOverride(for entry: MenuEntry) {
-        switch entry.markKind {
-        case .none:
-            break
-        case .check:
-            markOverrides[entry.pathKey] = entry.mark == AXGlyph.checkmark ? "" : AXGlyph.checkmark
-        case .radio:
-            markOverrides[entry.pathKey] = AXGlyph.radio
-        }
-    }
-
-    private func applyOverrides(to entries: [MenuEntry]) -> [MenuEntry] {
-        guard !markOverrides.isEmpty else { return entries }
-        return entries.map { entry in
-            guard let value = markOverrides[entry.pathKey] else { return entry }
-            let mark: String? = value.isEmpty ? nil : value
-            return MenuEntry(
-                title: entry.title,
-                path: entry.path,
-                indices: entry.indices,
-                shortcut: entry.shortcut,
-                mark: mark,
-                markKind: entry.markKind,
-                enabled: entry.enabled
-            )
-        }
     }
 
     private func restoreFocus() {

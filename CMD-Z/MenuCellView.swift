@@ -16,16 +16,12 @@ final class MenuCellView: NSTableCellView {
     private static let symbolOvershoots: [String: CGFloat] = ["control": 0.8]
     private static let symbolBaselineOffsets: [String: CGFloat] = ["control": 2]
 
-    private let markImageView = NSImageView()
     private let titleLabel = NSTextField(labelWithString: "")
     private let pathLabel = NSTextField(labelWithString: "")
     private let shortcutLabel = NSTextField(labelWithString: "")
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
-
-        markImageView.imageScaling = .scaleProportionallyDown
-        markImageView.contentTintColor = .secondaryLabelColor
 
         titleLabel.font = NSFont.preferredFont(forTextStyle: .headline)
         titleLabel.lineBreakMode = .byTruncatingTail
@@ -38,23 +34,16 @@ final class MenuCellView: NSTableCellView {
         shortcutLabel.textColor = .secondaryLabelColor
         shortcutLabel.alignment = .right
 
-        addSubview(markImageView)
         addSubview(titleLabel)
         addSubview(pathLabel)
         addSubview(shortcutLabel)
 
-        markImageView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         pathLabel.translatesAutoresizingMaskIntoConstraints = false
         shortcutLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            markImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 6),
-            markImageView.widthAnchor.constraint(equalToConstant: 16),
-            markImageView.heightAnchor.constraint(equalToConstant: 16),
-            markImageView.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
-
-            titleLabel.leadingAnchor.constraint(equalTo: markImageView.trailingAnchor, constant: 1),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
             titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: shortcutLabel.leadingAnchor, constant: -8),
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 6),
 
@@ -74,23 +63,9 @@ final class MenuCellView: NSTableCellView {
     }
 
     func configure(entry: MenuEntry) {
-        markImageView.image = entry.mark.flatMap(Self.markSymbolName).flatMap(Self.symbolImage)
         titleLabel.stringValue = entry.title
         pathLabel.stringValue = entry.displayPath
         shortcutLabel.attributedStringValue = entry.shortcut.map(Self.attributedShortcut) ?? NSAttributedString()
-    }
-
-    private static func markSymbolName(_ mark: String) -> String? {
-        switch mark {
-        case AXGlyph.checkmark:
-            "checkmark"
-        case AXGlyph.radio:
-            "smallcircle.filled.circle"
-        case AXGlyph.mixed:
-            "minus"
-        default:
-            nil
-        }
     }
 
     private static func symbolImage(_ name: String) -> NSImage? {

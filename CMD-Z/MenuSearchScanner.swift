@@ -37,20 +37,10 @@ struct MenuShortcut: Sendable, Equatable {
     }
 }
 
-/// The kind of mark a menu uses, inferred from its items' mark characters.
-enum MenuMarkKind: Sendable, Equatable {
-    case none
-    case check
-    case radio
-}
-
-/// Character values the Accessibility API uses for menu item marks and key glyphs.
+/// Character values the Accessibility API uses for key glyphs.
 enum AXGlyph {
     static let globe = "\u{1F310}" // globe / function key
     static let microphone = "\u{1F3A4}" // dictation key
-    static let checkmark = "\u{2713}" // ✓
-    static let radio = "\u{2022}" // •
-    static let mixed = "\u{2013}" // –
 }
 
 /// A single searchable menu item, represented as Sendable value types so it can cross actors.
@@ -59,8 +49,6 @@ struct MenuEntry: Sendable, Equatable {
     let path: [String]
     let indices: [Int]
     let shortcut: MenuShortcut?
-    let mark: String?
-    let markKind: MenuMarkKind
     let enabled: Bool
 
     var displayPath: String {
@@ -153,7 +141,6 @@ enum MenuSearchScanner {
         guard Date() < deadline else { return }
 
         let children = flattenedChildren(of: element)
-        let kind = markKind(in: children)
 
         for (childIndex, child) in children.enumerated() {
             guard Date() < deadline else { return }
@@ -169,8 +156,6 @@ enum MenuSearchScanner {
                         path: path + [title],
                         indices: indices + [childIndex],
                         shortcut: shortcut(for: child),
-                        mark: mark(for: child),
-                        markKind: kind,
                         enabled: bool(child, kAXEnabledAttribute) ?? true
                     ))
                 }
@@ -228,33 +213,6 @@ enum MenuSearchScanner {
             return nil
         }
         return virtualKeySymbols[virtualKey]
-    }
-
-    private static func mark(for element: AXUIElement) -> String? {
-        guard let mark = string(element, kAXMenuItemMarkCharAttribute), !mark.isEmpty else {
-            return nil
-        }
-        return mark
-    }
-
-    private static func markKind(in elements: [AXUIElement]) -> MenuMarkKind {
-        var hasCheck = false
-        var hasRadio = false
-        for element in elements {
-            guard let mark = mark(for: element) else { continue }
-            if mark == AXGlyph.radio {
-                hasRadio = true
-            } else if mark == AXGlyph.checkmark || mark == AXGlyph.mixed {
-                hasCheck = true
-            }
-        }
-        if hasRadio {
-            return .radio
-        }
-        if hasCheck {
-            return .check
-        }
-        return .none
     }
 
     // MARK: - AX primitives
