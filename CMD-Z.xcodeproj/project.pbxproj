@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 100;
 	objects = {
 
 /* Begin PBXFileReference section */
@@ -34,10 +34,8 @@
 /* Begin PBXFrameworksBuildPhase section */
 		E2463AA62D8768F00097FDF5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -78,8 +76,6 @@
 				E2463AAB2D8768F00097FDF5 /* CMD-Z */,
 			);
 			name = "CMD-Z";
-			packageProductDependencies = (
-			);
 			productName = "CMD-Z";
 			productReference = E2463AA92D8768F00097FDF5 /* CMD-Z.app */;
 			productType = "com.apple.product-type.application";
@@ -112,7 +108,7 @@
 			packageReferences = (
 				E2E0CC072D877E6F00570CEF /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 			);
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 100;
 			productRefGroup = E2463AAA2D8768F00097FDF5 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -125,20 +121,16 @@
 /* Begin PBXResourcesBuildPhase section */
 		E2463AA72D8768F00097FDF5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E2463AA52D8768F00097FDF5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
@@ -150,7 +142,7 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		E2463AB62D8768F00097FDF5 /* Debug */ = {
+		E2463AB62D8768F00097FDF5 /* Debug configuration for PBXProject "CMD-Z" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -218,7 +210,7 @@
 			};
 			name = Debug;
 		};
-		E2463AB72D8768F00097FDF5 /* Release */ = {
+		E2463AB72D8768F00097FDF5 /* Release configuration for PBXProject "CMD-Z" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -278,7 +270,7 @@
 			};
 			name = Release;
 		};
-		E2463AB92D8768F00097FDF5 /* Debug */ = {
+		E2463AB92D8768F00097FDF5 /* Debug configuration for PBXNativeTarget "CMD-Z" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -286,7 +278,7 @@
 				CODE_SIGN_ENTITLEMENTS = "CMD-Z/CMD_Z.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -301,7 +293,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.6;
-				MARKETING_VERSION = 2.0.0;
+				MARKETING_VERSION = 2.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "de.fauler-apfel.CMD-Z";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -309,7 +301,7 @@
 			};
 			name = Debug;
 		};
-		E2463ABA2D8768F00097FDF5 /* Release */ = {
+		E2463ABA2D8768F00097FDF5 /* Release configuration for PBXNativeTarget "CMD-Z" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -317,7 +309,7 @@
 				CODE_SIGN_ENTITLEMENTS = "CMD-Z/CMD_Z.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -332,7 +324,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.6;
-				MARKETING_VERSION = 2.0.0;
+				MARKETING_VERSION = 2.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "de.fauler-apfel.CMD-Z";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -346,19 +338,17 @@
 		E2463AA42D8768F00097FDF5 /* Build configuration list for PBXProject "CMD-Z" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				E2463AB62D8768F00097FDF5 /* Debug */,
-				E2463AB72D8768F00097FDF5 /* Release */,
+				E2463AB62D8768F00097FDF5 /* Debug configuration for PBXProject "CMD-Z" */,
+				E2463AB72D8768F00097FDF5 /* Release configuration for PBXProject "CMD-Z" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		E2463AB82D8768F00097FDF5 /* Build configuration list for PBXNativeTarget "CMD-Z" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				E2463AB92D8768F00097FDF5 /* Debug */,
-				E2463ABA2D8768F00097FDF5 /* Release */,
+				E2463AB92D8768F00097FDF5 /* Debug configuration for PBXNativeTarget "CMD-Z" */,
+				E2463ABA2D8768F00097FDF5 /* Release configuration for PBXNativeTarget "CMD-Z" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
