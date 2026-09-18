@@ -12,6 +12,10 @@ import Cocoa
 
 @MainActor
 final class MenuCellView: NSTableCellView {
+    private static let symbolOvershoot: CGFloat = 1.2
+    private static let symbolOvershoots: [String: CGFloat] = ["control": 0.8]
+    private static let symbolBaselineOffsets: [String: CGFloat] = ["control": 2]
+
     private let markImageView = NSImageView()
     private let titleLabel = NSTextField(labelWithString: "")
     private let pathLabel = NSTextField(labelWithString: "")
@@ -122,7 +126,14 @@ final class MenuCellView: NSTableCellView {
 
     private static func symbolAttachment(_ name: String) -> NSAttributedString {
         let attachment = NSTextAttachment()
-        attachment.image = symbolImage(name)
+        if let image = symbolImage(name) {
+            let font = NSFont.preferredFont(forTextStyle: .body)
+            let height = font.capHeight * (symbolOvershoots[name] ?? symbolOvershoot)
+            let width = image.size.width * (height / image.size.height)
+            attachment.image = image
+            let baselineOffset = (font.capHeight - height) / 2 + (symbolBaselineOffsets[name] ?? 0)
+            attachment.bounds = CGRect(x: 0, y: baselineOffset, width: width, height: height)
+        }
         return NSAttributedString(attachment: attachment)
     }
 }

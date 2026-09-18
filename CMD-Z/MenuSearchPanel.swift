@@ -240,7 +240,11 @@ final class MenuSearchPanel: NSObject {
             filteredEntries = recent + allEntries.filter { !recentKeys.contains($0.pathKey) }
         } else {
             let scored = allEntries.enumerated().compactMap { index, entry -> ScoredEntry? in
-                guard let score = FuzzyMatcher.score(query: query, title: entry.title, path: entry.displayPath) else {
+                guard let score = FuzzyMatcher.score(
+                    query: query,
+                    title: entry.title,
+                    ancestors: Array(entry.path.dropLast().reversed())
+                ) else {
                     return nil
                 }
                 return ScoredEntry(index: index, score: score, entry: entry)

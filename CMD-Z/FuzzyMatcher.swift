@@ -14,28 +14,39 @@ import Foundation
 /// with a Jaro-Winkler fallback for typo-tolerant word matches.
 enum FuzzyMatcher {
     private static let jaroThreshold = 0.85
+    private static let levelDecay = 0.5
 
     /// Returns a match score, or `nil` when the query does not match at all.
-    static func score(query: String, title: String, path: String) -> Double? {
+    /// `ancestors` contains the menu levels above the title, nearest-first;
+    /// matches deeper up the hierarchy decay by `levelDecay` per level.
+    static func score(query: String, title: String, ancestors: [String]) -> Double? {
         let tokens = normalize(query).split(separator: " ").map(String.init).filter { !$0.isEmpty }
         guard !tokens.isEmpty else { return 0 }
 
-        let text = "\(normalize(title)) \(normalize(path))"
-        let words = text.components(separatedBy: CharacterSet.alphanumerics.inverted)
-            .filter { !$0.isEmpty }
-
+        let levels = ([title] + ancestors).map(normalize)
         var total = 0.0
         for token in tokens {
-            let subsequence = subsequenceScore(query: token, text: text)
-            if subsequence > 0 {
-                total += subsequence
-                continue
+            var tokenScore: Double?
+            for (depth, level) in levels.enumerated() {
+                let subsequence = subsequenceScore(query: token, text: level)
+                if subsequence > 0 {
+                    tokenScore = subsequence * pow(levelDecay, Double(depth))
+                    break
+                }
             }
-            let best = words.map { jaroWinkler(token, $0) }.max() ?? 0
-            guard best >= jaroThreshold else {
+            if tokenScore == nil {
+                for (depth, level) in levels.enumerated() {
+                    let best = words(in: level).map { jaroWinkler(token, $0) }.max() ?? 0
+                    if best >= jaroThreshold {
+                        tokenScore = best * 0.6 * pow(levelDecay, Double(depth))
+                        break
+                    }
+                }
+            }
+            guard let tokenScore else {
                 return nil
             }
-            total += best * 0.6
+            total += tokenScore
         }
         return total
     }
@@ -44,6 +55,11 @@ enum FuzzyMatcher {
 
     private static func normalize(_ string: String) -> String {
         string.folding(options: .diacriticInsensitive, locale: .current).lowercased()
+    }
+
+    private static func words(in text: String) -> [String] {
+        text.components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
     }
 
     // MARK: - Subsequence
