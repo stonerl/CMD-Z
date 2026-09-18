@@ -214,7 +214,7 @@ final class MenuSearchPanel: NSObject {
     }
 
     private func entry(matchingShortcut event: NSEvent) -> MenuEntry? {
-        for entry in allEntries where entry.enabled {
+        for entry in allEntries {
             if let shortcut = entry.shortcut, shortcut.matches(event) {
                 return entry
             }
