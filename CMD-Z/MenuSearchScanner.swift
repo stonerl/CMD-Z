@@ -57,6 +57,7 @@ enum AXGlyph {
 struct MenuEntry: Sendable, Equatable {
     let title: String
     let path: [String]
+    let indices: [Int]
     let shortcut: MenuShortcut?
     let mark: String?
     let markKind: MenuMarkKind
@@ -67,7 +68,7 @@ struct MenuEntry: Sendable, Equatable {
     }
 
     var pathKey: String {
-        path.joined(separator: "\u{1}")
+        zip(path, indices).map { "\($0)\u{2}\($1)" }.joined(separator: "\u{1}")
     }
 }
 
@@ -90,17 +91,17 @@ enum MenuSearchScanner {
         let deadline = Date().addingTimeInterval(walkBudget)
 
         // Skip the first menu bar item (the global Apple menu).
-        for item in children(of: menuBar).dropFirst() {
+        for (index, item) in children(of: menuBar).enumerated().dropFirst() {
             guard let title = string(item, kAXTitleAttribute), !title.isEmpty else {
                 continue
             }
-            walk(item, path: [title], deadline: deadline, into: &result)
+            walk(item, path: [title], indices: [index], deadline: deadline, into: &result)
         }
         return result
     }
 
     /// Triggers the menu item at `path` by resolving its leaf element and pressing it directly.
-    static func trigger(path: [String], pid: pid_t) -> Bool {
+    static func trigger(path: [String], indices: [Int], pid: pid_t) -> Bool {
         Thread.sleep(forTimeInterval: 0.15)
 
         let app = AXUIElementCreateApplication(pid)
@@ -110,14 +111,26 @@ enum MenuSearchScanner {
             return false
         }
 
+        guard indices.count == path.count else {
+            return false
+        }
+
         var items = children(of: menuBar)
         var leaf: AXUIElement?
-        for (index, title) in path.enumerated() {
-            guard let match = items.first(where: { string($0, kAXTitleAttribute) == title }) else {
+        for (level, title) in path.enumerated() {
+            let target = indices[level]
+            let match: AXUIElement? = if items.indices.contains(target),
+                                         string(items[target], kAXTitleAttribute) == title
+            {
+                items[target]
+            } else {
+                items.first(where: { string($0, kAXTitleAttribute) == title })
+            }
+            guard let match else {
                 return false
             }
             leaf = match
-            if index < path.count - 1 {
+            if level < path.count - 1 {
                 items = flattenedChildren(of: match)
             }
         }
@@ -132,6 +145,7 @@ enum MenuSearchScanner {
 
     private static func walk(_ element: AXUIElement,
                              path: [String],
+                             indices: [Int],
                              deadline: Date,
                              into entries: inout [MenuEntry])
     {
@@ -140,7 +154,7 @@ enum MenuSearchScanner {
         let children = flattenedChildren(of: element)
         let kind = markKind(in: children)
 
-        for child in children {
+        for (childIndex, child) in children.enumerated() {
             guard Date() < deadline else { return }
             AXUIElementSetMessagingTimeout(child, sweepTimeout)
 
@@ -152,6 +166,7 @@ enum MenuSearchScanner {
                     entries.append(MenuEntry(
                         title: title,
                         path: path + [title],
+                        indices: indices + [childIndex],
                         shortcut: shortcut(for: child),
                         mark: mark(for: child),
                         markKind: kind,
@@ -159,7 +174,7 @@ enum MenuSearchScanner {
                     ))
                 }
             } else {
-                walk(child, path: path + [title], deadline: deadline, into: &entries)
+                walk(child, path: path + [title], indices: indices + [childIndex], deadline: deadline, into: &entries)
             }
         }
     }

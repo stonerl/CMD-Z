@@ -87,6 +87,7 @@ final class MenuSearchController {
             return
         }
         let path = entry.path
+        let indices = entry.indices
         recordRecent(entry)
         recordOverride(for: entry)
         panel.hide()
@@ -94,7 +95,7 @@ final class MenuSearchController {
 
         let pidValue = pid
         Task.detached {
-            _ = MenuSearchScanner.trigger(path: path, pid: pidValue)
+            _ = MenuSearchScanner.trigger(path: path, indices: indices, pid: pidValue)
         }
     }
 
@@ -126,6 +127,7 @@ final class MenuSearchController {
             return MenuEntry(
                 title: entry.title,
                 path: entry.path,
+                indices: entry.indices,
                 shortcut: entry.shortcut,
                 mark: mark,
                 markKind: entry.markKind,
