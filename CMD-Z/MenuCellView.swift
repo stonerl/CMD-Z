@@ -74,7 +74,6 @@ final class MenuCellView: NSTableCellView {
         titleLabel.stringValue = entry.title
         pathLabel.stringValue = entry.displayPath
         shortcutLabel.attributedStringValue = entry.shortcut.map(Self.attributedShortcut) ?? NSAttributedString()
-        titleLabel.textColor = entry.enabled ? .labelColor : .secondaryLabelColor
     }
 
     private static func markSymbolName(_ mark: String) -> String? {

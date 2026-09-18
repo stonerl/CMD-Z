@@ -90,11 +90,12 @@ enum MenuSearchScanner {
         var result: [MenuEntry] = []
         let deadline = Date().addingTimeInterval(walkBudget)
 
-        // Skip the first menu bar item (the global Apple menu).
-        for (index, item) in children(of: menuBar).enumerated().dropFirst() {
-            guard let title = string(item, kAXTitleAttribute), !title.isEmpty else {
+        // Skip the global Apple menu (AX reports its title as "Apple").
+        for (index, item) in children(of: menuBar).enumerated() {
+            guard let raw = string(item, kAXTitleAttribute), !raw.isEmpty, raw != "Apple" else {
                 continue
             }
+            let title = normalizeTitle(raw)
             walk(item, path: [title], indices: [index], deadline: deadline, into: &result)
         }
         return result
@@ -120,11 +121,11 @@ enum MenuSearchScanner {
         for (level, title) in path.enumerated() {
             let target = indices[level]
             let match: AXUIElement? = if items.indices.contains(target),
-                                         string(items[target], kAXTitleAttribute) == title
+                                         normalizeTitle(string(items[target], kAXTitleAttribute) ?? "") == title
             {
                 items[target]
             } else {
-                items.first(where: { string($0, kAXTitleAttribute) == title })
+                items.first(where: { normalizeTitle(string($0, kAXTitleAttribute) ?? "") == title })
             }
             guard let match else {
                 return false
@@ -158,7 +159,7 @@ enum MenuSearchScanner {
             guard Date() < deadline else { return }
             AXUIElementSetMessagingTimeout(child, sweepTimeout)
 
-            let title = string(child, kAXTitleAttribute) ?? ""
+            let title = normalizeTitle(string(child, kAXTitleAttribute) ?? "")
             let nested = flattenedChildren(of: child)
 
             if nested.isEmpty {
@@ -194,6 +195,25 @@ enum MenuSearchScanner {
         )
     }
 
+    private static let virtualKeySymbols: [Int: String] = [
+        kVK_Return: "return",
+        kVK_ANSI_KeypadEnter: "return",
+        kVK_Tab: "arrow.right.to.line",
+        kVK_Space: "space",
+        kVK_Delete: "delete.left",
+        kVK_ForwardDelete: "delete.right",
+        kVK_Escape: "escape",
+        kVK_CapsLock: "capslock",
+        kVK_Home: "arrow.up.to.line",
+        kVK_End: "arrow.down.to.line",
+        kVK_PageUp: "arrow.up.to.line.alt",
+        kVK_PageDown: "arrow.down.to.line.alt",
+        kVK_UpArrow: "arrowtriangle.up.fill",
+        kVK_DownArrow: "arrowtriangle.down.fill",
+        kVK_LeftArrow: "arrowtriangle.left.fill",
+        kVK_RightArrow: "arrowtriangle.right.fill"
+    ]
+
     private static func symbolName(forChar char: String, virtualKey: Int?) -> String? {
         if char == AXGlyph.globe {
             return "globe"
@@ -201,23 +221,13 @@ enum MenuSearchScanner {
         if char == AXGlyph.microphone {
             return "mic"
         }
-
+        if char == "\u{7F}" {
+            return "delete.right"
+        }
         guard let virtualKey else {
             return nil
         }
-        if virtualKey == kVK_UpArrow {
-            return "arrowtriangle.up.fill"
-        }
-        if virtualKey == kVK_DownArrow {
-            return "arrowtriangle.down.fill"
-        }
-        if virtualKey == kVK_LeftArrow {
-            return "arrowtriangle.left.fill"
-        }
-        if virtualKey == kVK_RightArrow {
-            return "arrowtriangle.right.fill"
-        }
-        return nil
+        return virtualKeySymbols[virtualKey]
     }
 
     private static func mark(for element: AXUIElement) -> String? {
@@ -259,6 +269,11 @@ enum MenuSearchScanner {
 
     private static func string(_ element: AXUIElement, _ name: String) -> String? {
         attribute(element, name) as? String
+    }
+
+    private static func normalizeTitle(_ raw: String) -> String {
+        raw.replacingOccurrences(of: "\n", with: " ")
+            .trimmingCharacters(in: .whitespaces)
     }
 
     private static func bool(_ element: AXUIElement, _ name: String) -> Bool? {
