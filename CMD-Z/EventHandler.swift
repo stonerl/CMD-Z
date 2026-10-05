@@ -235,7 +235,10 @@ class EventHandler {
                event.getIntegerValueField(.keyboardEventAutorepeat) == 0,
                config.isMenuSearchEnabled
             {
-                MenuSearchController.shared.toggle()
+                // Defer UI work out of the event tap callback to avoid tap timeouts.
+                DispatchQueue.main.async {
+                    MenuSearchController.shared.toggle()
+                }
                 return nil
             }
         }

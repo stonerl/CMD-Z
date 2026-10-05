@@ -20,7 +20,7 @@ final class CapsLockHandler {
     static let tapThreshold: TimeInterval = 0.25
     static let tapBlockingModifiers: CGEventFlags = [.maskControl, .maskAlternate, .maskCommand, .maskShift]
 
-    private let hyperKeyCode = Int64(kVK_F18)
+    static let hyperKeyCode = Int64(kVK_F18)
 
     private var isHyperActive = false
     private var hyperKeyDownTime: TimeInterval = 0
@@ -33,7 +33,7 @@ final class CapsLockHandler {
 
     /// Returns true if the event originates from the remapped Caps Lock key (F18).
     static func isHyperKeyEvent(_ event: CGEvent) -> Bool {
-        event.getIntegerValueField(.keyboardEventKeycode) == Int64(kVK_F18)
+        event.getIntegerValueField(.keyboardEventKeycode) == hyperKeyCode
     }
 
     /// Handles the hyper key: tap toggles caps lock, hold acts as a hyper modifier.
