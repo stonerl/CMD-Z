@@ -17,29 +17,6 @@ class EventHandler {
     static let shared = EventHandler()
     var eventTap: CFMachPort?
 
-    private struct FeatureConfig {
-        var isHyperKeyEnabled = false
-        var isClipboardMacroEnabled = false
-        var isMenuSearchEnabled = false
-        var isRemappingEnabled = true
-    }
-
-    private var currentConfig = FeatureConfig()
-
-    func refreshConfig(
-        isHyperKeyEnabled: Bool,
-        isClipboardMacroEnabled: Bool,
-        isMenuSearchEnabled: Bool,
-        isRemappingEnabled: Bool
-    ) {
-        currentConfig = FeatureConfig(
-            isHyperKeyEnabled: isHyperKeyEnabled,
-            isClipboardMacroEnabled: isClipboardMacroEnabled,
-            isMenuSearchEnabled: isMenuSearchEnabled,
-            isRemappingEnabled: isRemappingEnabled
-        )
-    }
-
     private var accessibilityPollTimer: Timer?
     private var permissionMonitorTimer: Timer?
     private var eventTapRetryCount = 0
@@ -209,9 +186,12 @@ class EventHandler {
             return Unmanaged.passUnretained(event)
         }
 
-        let config = currentConfig
         if CapsLockHandler.isHyperKeyEvent(event) {
-            return CapsLockHandler.shared.handle(type: type, event: event, isEnabled: config.isHyperKeyEnabled)
+            return CapsLockHandler.shared.handle(
+                type: type,
+                event: event,
+                isEnabled: FeatureSettings.isHyperKeyEnabled
+            )
         }
 
         let isHyperActive = CapsLockHandler.shared.isActive
@@ -222,7 +202,7 @@ class EventHandler {
         }
 
         if isHyperActive, event.getIntegerValueField(.keyboardEventKeycode) == Int64(kVK_ANSI_V) {
-            if config.isClipboardMacroEnabled {
+            if FeatureSettings.isClipboardMacroEnabled {
                 if type == .keyDown, event.getIntegerValueField(.keyboardEventAutorepeat) == 0 {
                     MacroHandler.shared.triggerClipboardManager()
                 }
@@ -233,7 +213,7 @@ class EventHandler {
         if isHyperActive, event.getIntegerValueField(.keyboardEventKeycode) == Int64(kVK_Escape) {
             if type == .keyDown,
                event.getIntegerValueField(.keyboardEventAutorepeat) == 0,
-               config.isMenuSearchEnabled
+               FeatureSettings.isMenuSearchEnabled
             {
                 // Defer UI work out of the event tap callback to avoid tap timeouts.
                 DispatchQueue.main.async {
@@ -246,7 +226,7 @@ class EventHandler {
         let result = KeyboardHandler.handleCGEvent(
             type: type,
             event: event,
-            isRemappingEnabled: config.isRemappingEnabled
+            isRemappingEnabled: FeatureSettings.isRemappingEnabled
         )
 
         if isHyperActive, type == .keyDown || type == .keyUp {

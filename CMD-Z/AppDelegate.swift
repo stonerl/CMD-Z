@@ -53,45 +53,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Apply the Caps Lock -> F18 remap before starting the event tap
         CapsLockRemapper.setEnabled(FeatureSettings.isHyperKeyEnabled)
 
-        refreshEventTapConfig()
-
         // Start the key event tap using EventHandler
         EventHandler.shared.startEventTap()
-    }
-
-    private func refreshEventTapConfig() {
-        EventHandler.shared.refreshConfig(
-            isHyperKeyEnabled: FeatureSettings.isHyperKeyEnabled,
-            isClipboardMacroEnabled: FeatureSettings.isClipboardMacroEnabled,
-            isMenuSearchEnabled: FeatureSettings.isMenuSearchEnabled,
-            isRemappingEnabled: FeatureSettings.isRemappingEnabled
-        )
     }
 
     @objc func toggleRemapping(_ sender: NSMenuItem) {
         FeatureSettings.isRemappingEnabled.toggle()
         sender.state = FeatureSettings.isRemappingEnabled ? .on : .off
         MenuBarManager.shared.updateAppearance(isEnabled: FeatureSettings.isRemappingEnabled)
-        refreshEventTapConfig()
     }
 
     @objc func toggleHyperKey(_ sender: NSMenuItem) {
         FeatureSettings.isHyperKeyEnabled.toggle()
         sender.state = FeatureSettings.isHyperKeyEnabled ? .on : .off
         CapsLockRemapper.setEnabled(FeatureSettings.isHyperKeyEnabled)
-        refreshEventTapConfig()
     }
 
     @objc func toggleClipboardMacro(_ sender: NSMenuItem) {
         FeatureSettings.isClipboardMacroEnabled.toggle()
         sender.state = FeatureSettings.isClipboardMacroEnabled ? .on : .off
-        refreshEventTapConfig()
     }
 
     @objc func toggleMenuSearch(_ sender: NSMenuItem) {
         FeatureSettings.isMenuSearchEnabled.toggle()
         sender.state = FeatureSettings.isMenuSearchEnabled ? .on : .off
-        refreshEventTapConfig()
     }
 
     @objc func toggleAutostart(_ sender: NSMenuItem) {
