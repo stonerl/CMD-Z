@@ -17,6 +17,29 @@ class EventHandler {
     static let shared = EventHandler()
     var eventTap: CFMachPort?
 
+    private struct FeatureConfig {
+        var isHyperKeyEnabled = false
+        var isClipboardMacroEnabled = false
+        var isMenuSearchEnabled = false
+        var isRemappingEnabled = true
+    }
+
+    private var currentConfig = FeatureConfig()
+
+    func refreshConfig(
+        isHyperKeyEnabled: Bool,
+        isClipboardMacroEnabled: Bool,
+        isMenuSearchEnabled: Bool,
+        isRemappingEnabled: Bool
+    ) {
+        currentConfig = FeatureConfig(
+            isHyperKeyEnabled: isHyperKeyEnabled,
+            isClipboardMacroEnabled: isClipboardMacroEnabled,
+            isMenuSearchEnabled: isMenuSearchEnabled,
+            isRemappingEnabled: isRemappingEnabled
+        )
+    }
+
     private var accessibilityPollTimer: Timer?
     private var permissionMonitorTimer: Timer?
     private var eventTapRetryCount = 0
@@ -81,7 +104,12 @@ class EventHandler {
     private func setupEventTap() {
         guard eventTap == nil else { return }
 
-        let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
+        let eventMask = (1 << CGEventType.keyDown.rawValue)
+            | (1 << CGEventType.keyUp.rawValue)
+            | (1 << CGEventType.leftMouseDown.rawValue)
+            | (1 << CGEventType.leftMouseUp.rawValue)
+            | (1 << CGEventType.rightMouseDown.rawValue)
+            | (1 << CGEventType.otherMouseDown.rawValue)
         eventTap = CGEvent.tapCreate(
             tap: .cghidEventTap,
             place: .headInsertEventTap,
@@ -180,19 +208,20 @@ class EventHandler {
             return Unmanaged.passUnretained(event)
         }
 
+        let config = currentConfig
         if CapsLockHandler.isHyperKeyEvent(event) {
-            let isHyperEnabled = AppDelegate.shared?.isHyperKeyEnabled ?? false
-            return CapsLockHandler.shared.handle(type: type, event: event, isEnabled: isHyperEnabled)
+            return CapsLockHandler.shared.handle(type: type, event: event, isEnabled: config.isHyperKeyEnabled)
         }
 
         let isHyperActive = CapsLockHandler.shared.isActive
+        let isMouseDown = type == .leftMouseDown || type == .rightMouseDown || type == .otherMouseDown
 
-        if isHyperActive, type == .keyDown {
+        if isHyperActive, type == .keyDown || isMouseDown {
             CapsLockHandler.shared.noteOtherKeyPressed()
         }
 
         if isHyperActive, event.getIntegerValueField(.keyboardEventKeycode) == Int64(kVK_ANSI_V) {
-            if AppDelegate.shared?.isClipboardMacroEnabled ?? false {
+            if config.isClipboardMacroEnabled {
                 if type == .keyDown, event.getIntegerValueField(.keyboardEventAutorepeat) == 0 {
                     MacroHandler.shared.triggerClipboardManager()
                 }
@@ -203,15 +232,18 @@ class EventHandler {
         if isHyperActive, event.getIntegerValueField(.keyboardEventKeycode) == Int64(kVK_Escape) {
             if type == .keyDown,
                event.getIntegerValueField(.keyboardEventAutorepeat) == 0,
-               AppDelegate.shared?.isMenuSearchEnabled ?? false
+               config.isMenuSearchEnabled
             {
                 MenuSearchController.shared.toggle()
+                return nil
             }
-            return nil
         }
 
-        let isEnabled = AppDelegate.shared?.isRemappingEnabled ?? true
-        let result = KeyboardHandler.handleCGEvent(type: type, event: event, isRemappingEnabled: isEnabled)
+        let result = KeyboardHandler.handleCGEvent(
+            type: type,
+            event: event,
+            isRemappingEnabled: config.isRemappingEnabled
+        )
 
         if isHyperActive, type == .keyDown || type == .keyUp {
             event.flags.formUnion(CapsLockHandler.hyperModifiers)

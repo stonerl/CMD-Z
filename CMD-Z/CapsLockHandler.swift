@@ -54,7 +54,7 @@ final class CapsLockHandler {
 
         case .keyUp:
             guard isHyperActive else {
-                return Unmanaged.passUnretained(event)
+                return nil
             }
             let duration = ProcessInfo.processInfo.systemUptime - hyperKeyDownTime
             let wasTap = duration < Self.tapThreshold && !pressedOtherKeyWhileHolding
