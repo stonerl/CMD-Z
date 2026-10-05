@@ -18,6 +18,7 @@ final class CapsLockHandler {
 
     static let hyperModifiers: CGEventFlags = [.maskControl, .maskAlternate, .maskCommand]
     static let tapThreshold: TimeInterval = 0.25
+    static let tapBlockingModifiers: CGEventFlags = [.maskControl, .maskAlternate, .maskCommand, .maskShift]
 
     private let hyperKeyCode = Int64(kVK_F18)
 
@@ -38,15 +39,17 @@ final class CapsLockHandler {
     /// Handles the hyper key: tap toggles caps lock, hold acts as a hyper modifier.
     func handle(type: CGEventType, event: CGEvent, isEnabled: Bool) -> Unmanaged<CGEvent>? {
         guard isEnabled else {
+            let wasHolding = isHyperActive
             resetState()
+            if wasHolding, type == .keyUp {
+                return nil
+            }
             return Unmanaged.passUnretained(event)
         }
 
         switch type {
         case .keyDown:
-            guard !isHyperActive else {
-                return nil
-            }
+            // F18 cannot autorepeat, so a second keyDown means the keyUp was missed; re-arm fresh.
             isHyperActive = true
             hyperKeyDownTime = ProcessInfo.processInfo.systemUptime
             pressedOtherKeyWhileHolding = false
@@ -57,7 +60,8 @@ final class CapsLockHandler {
                 return nil
             }
             let duration = ProcessInfo.processInfo.systemUptime - hyperKeyDownTime
-            let wasTap = duration < Self.tapThreshold && !pressedOtherKeyWhileHolding
+            let hadModifiers = !event.flags.isDisjoint(with: Self.tapBlockingModifiers)
+            let wasTap = duration < Self.tapThreshold && !pressedOtherKeyWhileHolding && !hadModifiers
             resetState()
             if wasTap {
                 setCapsLockState(!capsLockState())
@@ -74,7 +78,7 @@ final class CapsLockHandler {
         pressedOtherKeyWhileHolding = true
     }
 
-    private func resetState() {
+    func resetState() {
         isHyperActive = false
         pressedOtherKeyWhileHolding = false
     }

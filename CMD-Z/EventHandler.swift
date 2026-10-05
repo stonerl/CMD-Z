@@ -193,6 +193,7 @@ class EventHandler {
 
     static let eventTapCallback: CGEventTapCallBack = { _, type, event, _ in
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+            CapsLockHandler.shared.resetState()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 if let eventTap = EventHandler.shared.eventTap {
                     CGEvent.tapEnable(tap: eventTap, enable: true)
