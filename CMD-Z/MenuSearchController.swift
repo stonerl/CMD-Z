@@ -20,7 +20,6 @@ final class MenuSearchController {
     private var recentPaths: [String] = []
 
     private static let recentLimit = 8
-    private static let recentKey = "recentMenuPaths"
 
     private init() {
         panel.onSelect = { [weak self] entry in
@@ -33,7 +32,7 @@ final class MenuSearchController {
         panel.onExternalDismiss = { [weak self] in
             self?.dismiss()
         }
-        recentPaths = UserDefaults.standard.stringArray(forKey: Self.recentKey) ?? []
+        recentPaths = FeatureSettings.recentMenuPaths
     }
 
     var isVisible: Bool {
@@ -93,7 +92,7 @@ final class MenuSearchController {
         if recentPaths.count > Self.recentLimit {
             recentPaths = Array(recentPaths.prefix(Self.recentLimit))
         }
-        UserDefaults.standard.set(recentPaths, forKey: Self.recentKey)
+        FeatureSettings.recentMenuPaths = recentPaths
     }
 
     private func restoreFocus() {

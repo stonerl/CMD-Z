@@ -14,37 +14,6 @@ import ServiceManagement
 @main
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
-    var isRemappingEnabled = true
-    var isHyperKeyEnabled: Bool {
-        get {
-            if UserDefaults.standard.object(forKey: "isHyperKeyEnabled") == nil {
-                return true
-            }
-            return UserDefaults.standard.bool(forKey: "isHyperKeyEnabled")
-        }
-        set { UserDefaults.standard.set(newValue, forKey: "isHyperKeyEnabled") }
-    }
-
-    var isClipboardMacroEnabled: Bool {
-        get {
-            if UserDefaults.standard.object(forKey: "isClipboardMacroEnabled") == nil {
-                return true
-            }
-            return UserDefaults.standard.bool(forKey: "isClipboardMacroEnabled")
-        }
-        set { UserDefaults.standard.set(newValue, forKey: "isClipboardMacroEnabled") }
-    }
-
-    var isMenuSearchEnabled: Bool {
-        get {
-            if UserDefaults.standard.object(forKey: "isMenuSearchEnabled") == nil {
-                return true
-            }
-            return UserDefaults.standard.bool(forKey: "isMenuSearchEnabled")
-        }
-        set { UserDefaults.standard.set(newValue, forKey: "isMenuSearchEnabled") }
-    }
-
     var isAutostartEnabled: Bool {
         let status = SMAppService.mainApp.status
         return status == .enabled || status == .requiresApproval
@@ -62,10 +31,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Create and configure the menu bar item using MenuBarManager
         MenuBarManager.shared.createMenuBarItem()
         let menuConfig = MenuConfiguration(
-            isRemappingEnabled: isRemappingEnabled,
-            isHyperKeyEnabled: isHyperKeyEnabled,
-            isClipboardMacroEnabled: isClipboardMacroEnabled,
-            isMenuSearchEnabled: isMenuSearchEnabled,
+            isRemappingEnabled: FeatureSettings.isRemappingEnabled,
+            isHyperKeyEnabled: FeatureSettings.isHyperKeyEnabled,
+            isClipboardMacroEnabled: FeatureSettings.isClipboardMacroEnabled,
+            isMenuSearchEnabled: FeatureSettings.isMenuSearchEnabled,
             isAutostartEnabled: isAutostartEnabled
         )
         MenuBarManager.shared.setupMenu(
@@ -82,7 +51,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         // Apply the Caps Lock -> F18 remap before starting the event tap
-        CapsLockRemapper.setEnabled(isHyperKeyEnabled)
+        CapsLockRemapper.setEnabled(FeatureSettings.isHyperKeyEnabled)
 
         refreshEventTapConfig()
 
@@ -92,36 +61,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func refreshEventTapConfig() {
         EventHandler.shared.refreshConfig(
-            isHyperKeyEnabled: isHyperKeyEnabled,
-            isClipboardMacroEnabled: isClipboardMacroEnabled,
-            isMenuSearchEnabled: isMenuSearchEnabled,
-            isRemappingEnabled: isRemappingEnabled
+            isHyperKeyEnabled: FeatureSettings.isHyperKeyEnabled,
+            isClipboardMacroEnabled: FeatureSettings.isClipboardMacroEnabled,
+            isMenuSearchEnabled: FeatureSettings.isMenuSearchEnabled,
+            isRemappingEnabled: FeatureSettings.isRemappingEnabled
         )
     }
 
     @objc func toggleRemapping(_ sender: NSMenuItem) {
-        isRemappingEnabled.toggle()
-        sender.state = isRemappingEnabled ? .on : .off
-        MenuBarManager.shared.updateAppearance(isEnabled: isRemappingEnabled)
+        FeatureSettings.isRemappingEnabled.toggle()
+        sender.state = FeatureSettings.isRemappingEnabled ? .on : .off
+        MenuBarManager.shared.updateAppearance(isEnabled: FeatureSettings.isRemappingEnabled)
         refreshEventTapConfig()
     }
 
     @objc func toggleHyperKey(_ sender: NSMenuItem) {
-        isHyperKeyEnabled.toggle()
-        sender.state = isHyperKeyEnabled ? .on : .off
-        CapsLockRemapper.setEnabled(isHyperKeyEnabled)
+        FeatureSettings.isHyperKeyEnabled.toggle()
+        sender.state = FeatureSettings.isHyperKeyEnabled ? .on : .off
+        CapsLockRemapper.setEnabled(FeatureSettings.isHyperKeyEnabled)
         refreshEventTapConfig()
     }
 
     @objc func toggleClipboardMacro(_ sender: NSMenuItem) {
-        isClipboardMacroEnabled.toggle()
-        sender.state = isClipboardMacroEnabled ? .on : .off
+        FeatureSettings.isClipboardMacroEnabled.toggle()
+        sender.state = FeatureSettings.isClipboardMacroEnabled ? .on : .off
         refreshEventTapConfig()
     }
 
     @objc func toggleMenuSearch(_ sender: NSMenuItem) {
-        isMenuSearchEnabled.toggle()
-        sender.state = isMenuSearchEnabled ? .on : .off
+        FeatureSettings.isMenuSearchEnabled.toggle()
+        sender.state = FeatureSettings.isMenuSearchEnabled ? .on : .off
         refreshEventTapConfig()
     }
 

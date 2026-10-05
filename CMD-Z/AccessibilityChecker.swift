@@ -23,7 +23,7 @@ class AccessibilityChecker {
     /// Returns true if the app is in the accessibility list but not enabled.
     var isAppInAccessibilityList: Bool {
         let isTrusted = AXIsProcessTrusted()
-        let wasPromptedBefore = UserDefaults.standard.bool(forKey: "wasPromptedBefore")
+        let wasPromptedBefore = FeatureSettings.wasPromptedBefore
 
         return !isTrusted && wasPromptedBefore
     }
@@ -39,7 +39,7 @@ class AccessibilityChecker {
 
     /// Presents an alert informing the user that accessibility access is required.
     func showAccessibilityAlert(completion: @escaping () -> Void) {
-        UserDefaults.standard.set(true, forKey: "wasPromptedBefore")
+        FeatureSettings.wasPromptedBefore = true
 
         presentAlert(
             title: NSLocalizedString(
