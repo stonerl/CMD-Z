@@ -95,3 +95,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         CapsLockRemapper.clearBlocking()
     }
 }
+
+extension AppDelegate: NSMenuItemValidation {
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        switch menuItem.action {
+        case #selector(toggleClipboardMacro(_:)), #selector(toggleMenuSearch(_:)):
+            FeatureSettings.isHyperKeyEnabled
+        default:
+            true
+        }
+    }
+}
