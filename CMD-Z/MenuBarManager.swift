@@ -30,11 +30,17 @@ struct MenuActions {
 @MainActor
 class MenuBarManager {
     static let shared = MenuBarManager()
+
+    private static let autosaveName = "CMD-Z"
+
     var statusItem: NSStatusItem?
 
     /// Creates the menu bar item using the asset catalog image.
     func createMenuBarItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        // Persisted visibility: hides/restores automatically with the
+        // System Settings "Allow in Menu Bar" toggle and cmd-drag.
+        statusItem?.autosaveName = Self.autosaveName
         guard let button = statusItem?.button else { return }
 
         if let image = NSImage(named: "MenuBar")?.copy() as? NSImage {
